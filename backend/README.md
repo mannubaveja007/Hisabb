@@ -1,4 +1,16 @@
-# Hisabb Backend & Static Server
+# Hisabb Backend
+
+## Render deployment
+
+The repository includes a root `render.yaml` Blueprint for this service. If configuring Render manually, use:
+
+- Root directory: `backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Health check path: `/api/health`
+
+Set `CORS_ORIGINS` to the deployed frontend URL. Keep `DATABASE_URL` as SQLite for a simple demo, or provide a hosted database URL when durable storage is needed.
+ & Static Server
 
 Local-first, voice-driven credit ledger for Indian Kirana & Retail stores.
 
