@@ -10,6 +10,7 @@ interface ConfirmSheetProps {
   isOpen: boolean;
   onSave: (confirmedEntry: ParsedDraftEntry) => void;
   onDiscard: () => void;
+  queuePosition?: { current: number; total: number } | null;
 }
 
 export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
@@ -18,6 +19,7 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
   isOpen,
   onSave,
   onDiscard,
+  queuePosition = null,
 }) => {
   const [currentEntry, setCurrentEntry] = useState<ParsedDraftEntry | null>(entry);
   const [confirmedMatch, setConfirmedMatch] = useState<boolean | null>(null);
@@ -94,9 +96,16 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
                 Confirm entry
               </p>
             </div>
-            {/* Red dotted indicator like screenshot */}
+            <div className="flex items-center gap-2">
+              {queuePosition && (
+                <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-black text-red-700" aria-live="polite">
+                  Entry {queuePosition.current} of {queuePosition.total}
+                </span>
+              )}
+              {/* Red dotted indicator like screenshot */}
             <div className="w-7 h-7 rounded-full border-2 border-dashed border-red-500 flex items-center justify-center animate-spin">
               <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+            </div>
             </div>
           </div>
 
