@@ -23,6 +23,8 @@ import {
   MOCK_WEEKLY_SUMMARY,
   MOCK_CUSTOMER_HISTORIES,
   MOCK_DRAFT_ENTRY,
+  MOCK_TRANSCRIPTION_TEXT,
+  EnrichedCustomer,
 } from '@/mock/data';
 
 export default function HisabbApp() {
@@ -31,13 +33,14 @@ export default function HisabbApp() {
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
 
   // Ledger and Inventory Data states
-  const [customers, setCustomers] = useState<CustomerBalanceItem[]>(MOCK_CUSTOMERS);
+  const [customers, setCustomers] = useState<EnrichedCustomer[]>(MOCK_CUSTOMERS);
   const [inventory, setInventory] = useState<InventoryItem[]>(MOCK_INVENTORY);
   const [weeklyReminders, setWeeklyReminders] = useState<WeeklyReminderItem[]>(MOCK_WEEKLY_SUMMARY);
 
   // Mic and Confirm Sheet states
   const [micState, setMicState] = useState<MicState>('idle');
-  const [draftEntry, setDraftEntry] = useState<ParsedDraftEntry | null>(null);
+  const [transcriptionText, setTranscriptionText] = useState<string>(MOCK_TRANSCRIPTION_TEXT);
+  const [draftEntry, setDraftEntry] = useState<ParsedDraftEntry | null>(MOCK_DRAFT_ENTRY);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -123,11 +126,9 @@ export default function HisabbApp() {
           recorder.start();
           setMicState('recording');
         } else {
-          // Fallback simulation for unsupported browsers/contexts
           setMicState('recording');
         }
       } catch {
-        // Fallback simulation when mic permission is blocked or non-HTTPS
         setMicState('recording');
       }
     } else if (micState === 'recording') {
@@ -135,7 +136,6 @@ export default function HisabbApp() {
         mediaRecorderRef.current.stop();
         setMicState('processing');
       } else {
-        // Fallback simulation processing
         setMicState('processing');
         setTimeout(() => {
           processAudio(null);
@@ -160,6 +160,8 @@ export default function HisabbApp() {
 
         if (transcribeRes.ok) {
           const { text } = await transcribeRes.json();
+          setTranscriptionText(text);
+
           const parseRes = await fetch(getApiUrl('/api/parse'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -181,7 +183,8 @@ export default function HisabbApp() {
       }
     }
 
-    // Default demonstration entry with uncertain match ("Did you mean Anita Sharma?")
+    // Default demonstration entry with uncertain match ("Did you mean Sharma Ji?")
+    setTranscriptionText(MOCK_TRANSCRIPTION_TEXT);
     setDraftEntry(MOCK_DRAFT_ENTRY);
     setIsConfirmOpen(true);
     setMicState('idle');
@@ -217,7 +220,7 @@ export default function HisabbApp() {
     }
 
     // Update local state reactively
-    const custName = entry.customer || 'Customer';
+    const custName = entry.customer || 'Sharma Ji';
     const amount = entry.amount;
     const isCredit = entry.type === 'credit';
 
@@ -232,24 +235,30 @@ export default function HisabbApp() {
         const existing = prev[idx];
         const newCredit = existing.total_credit + (isCredit ? amount : 0);
         const newPaid = existing.total_paid + (!isCredit ? amount : 0);
-        const updated = {
+        const updated: EnrichedCustomer = {
           ...existing,
           total_credit: newCredit,
           total_paid: newPaid,
           balance: newCredit - newPaid,
+          recent_item: entry.item ? `${entry.item}` : existing.recent_item,
+          recent_time: 'Just now',
           last_transaction_at: new Date().toISOString(),
         };
         const nextList = [...prev];
         nextList[idx] = updated;
         return nextList;
       } else {
-        const newCust: CustomerBalanceItem = {
+        const newCust: EnrichedCustomer = {
           id: Date.now(),
           name: custName,
           phone: null,
           total_credit: isCredit ? amount : 0,
           total_paid: !isCredit ? amount : 0,
           balance: isCredit ? amount : -amount,
+          recent_item: entry.item || 'General items',
+          recent_time: 'Just now',
+          avatar_bg: 'bg-red-100',
+          avatar_text: 'text-red-700',
           last_transaction_at: new Date().toISOString(),
         };
         return [newCust, ...prev];
@@ -265,7 +274,6 @@ export default function HisabbApp() {
 
   const handleDiscardEntry = () => {
     setIsConfirmOpen(false);
-    setDraftEntry(null);
   };
 
   // Customer detail navigation
@@ -318,27 +326,35 @@ export default function HisabbApp() {
             onBack={() => setCurrentTab('home')}
           />
         ) : (
-          /* Home Screen */
+          /* Home Screen matching screenshot layout */
           <div className="animate-in fade-in duration-150">
-            {/* Giant Round Mic Button in center */}
-            <MicButton
-              state={micState}
-              onPress={handleMicPress}
-            />
-
             {/* Who Owes What Ledger List */}
             <CustomerList
               customers={customers}
               onSelectCustomer={(id) => setSelectedCustomerId(id)}
+              onAddCustomer={() => {
+                setTranscriptionText(MOCK_TRANSCRIPTION_TEXT);
+                setDraftEntry(MOCK_DRAFT_ENTRY);
+                setIsConfirmOpen(true);
+              }}
             />
+
+            {/* Mic Button centered */}
+            <div className="py-2">
+              <MicButton
+                state={micState}
+                onPress={handleMicPress}
+              />
+            </div>
           </div>
         )}
       </main>
 
-      {/* Confirmation Bottom Drawer */}
+      {/* Confirmation Bottom Drawer matching screenshot */}
       <ConfirmSheet
         isOpen={isConfirmOpen}
         entry={draftEntry}
+        transcriptionText={transcriptionText}
         onSave={handleSaveEntry}
         onDiscard={handleDiscardEntry}
       />

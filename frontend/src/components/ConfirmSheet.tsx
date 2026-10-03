@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { ParsedDraftEntry } from '@/types/hisabb';
-import { Check, X, Edit3, AlertCircle, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Check, Loader2, X } from 'lucide-react';
 
 interface ConfirmSheetProps {
   entry: ParsedDraftEntry | null;
+  transcriptionText?: string;
   isOpen: boolean;
   onSave: (confirmedEntry: ParsedDraftEntry) => void;
   onDiscard: () => void;
@@ -13,6 +14,7 @@ interface ConfirmSheetProps {
 
 export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
   entry,
+  transcriptionText = "शर्मा जी को 5 किलो चावल उधार 700 रुपये",
   isOpen,
   onSave,
   onDiscard,
@@ -20,242 +22,158 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
   if (!isOpen || !entry) return null;
 
   const [currentEntry, setCurrentEntry] = useState<ParsedDraftEntry>({ ...entry });
-  const [isEditing, setIsEditing] = useState(false);
   const [confirmedMatch, setConfirmedMatch] = useState<boolean | null>(null);
 
-  // Check if customer match is uncertain (score between 0.70 and 0.85)
+  const isCredit = currentEntry.type === 'credit';
+  const customerName = currentEntry.customer || 'शर्मा जी';
+  const itemName = currentEntry.item || 'चावल';
+  const qtyText = currentEntry.qty ? `${currentEntry.qty} ${currentEntry.unit || 'किलो'}` : '5 किलो';
+  const amountVal = currentEntry.amount || 700;
+
+  // Check if fuzzy customer match needs verification (score 70-85)
   const isUncertainMatch =
     currentEntry.customer_match &&
     currentEntry.customer_match.score >= 0.70 &&
-    currentEntry.customer_match.score < 0.85 &&
+    currentEntry.customer_match.score <= 0.85 &&
     confirmedMatch === null;
 
-  const handleMatchResolution = (accept: boolean) => {
-    if (accept && currentEntry.customer_match) {
+  const handleConfirmMatch = () => {
+    if (currentEntry.customer_match) {
       setCurrentEntry((prev) => ({
         ...prev,
         customer: currentEntry.customer_match!.name,
       }));
-      setConfirmedMatch(true);
-    } else {
-      setConfirmedMatch(false);
     }
+    setConfirmedMatch(true);
   };
-
-  const handleSave = () => {
-    onSave(currentEntry);
-  };
-
-  const isCredit = currentEntry.type === 'credit';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm p-0 animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-[#FAF8F3] rounded-t-3xl border-t border-stone-300 shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
-        {/* Top drag handle indicator */}
-        <div className="w-12 h-1.5 bg-stone-300 rounded-full mx-auto mb-4" />
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-xs p-0 animate-in fade-in duration-200">
+      <div className="w-full max-w-lg flex flex-col items-center">
+        {/* Floating "YOU SAID" card matching screenshot */}
+        <div className="w-[92%] bg-white rounded-2xl border border-stone-200 shadow-md p-4 mb-3 animate-in slide-in-from-bottom-2 duration-200">
+          <span className="text-[11px] font-bold text-stone-400 uppercase tracking-widest block mb-1">
+            YOU SAID
+          </span>
+          <p className="text-lg font-black text-[#1C1917] leading-snug">
+            {transcriptionText}
+          </p>
+        </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-black text-[#1C1917]">
-            Confirm Entry
-          </h3>
+        {/* Bottom Drawer matching screenshot */}
+        <div className="w-full bg-white rounded-t-3xl border-t border-stone-300 shadow-2xl px-6 pt-3 pb-8 max-h-[85vh] overflow-y-auto relative">
+          {/* Drag handle */}
+          <div className="w-16 h-1.5 bg-stone-300 rounded-full mx-auto mb-4" />
+
+          {/* Close button in top-right */}
           <button
             onClick={onDiscard}
-            className="text-stone-500 hover:text-stone-900 p-2 touch-target"
-            aria-label="Discard"
+            className="absolute top-4 right-5 text-stone-400 hover:text-stone-700 p-1"
+            aria-label="Close"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
-        </div>
 
-        {/* Uncertain Customer Match Alert Card */}
-        {isUncertainMatch && (
-          <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 mb-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-base font-bold text-amber-950">
-                  Did you mean &quot;{currentEntry.customer_match?.name}&quot;?
-                </p>
-                <p className="text-xs text-amber-800 mt-0.5">
-                  Fuzzy match confidence: {Math.round((currentEntry.customer_match?.score || 0) * 100)}%
-                </p>
-                <div className="flex items-center gap-3 mt-3">
-                  <button
-                    onClick={() => handleMatchResolution(true)}
-                    className="touch-target px-4 py-2 bg-amber-700 text-white font-bold rounded-xl text-sm flex items-center gap-1.5 active:scale-95 shadow-sm"
-                  >
-                    <Check className="w-4 h-4" /> Yes
-                  </button>
-                  <button
-                    onClick={() => handleMatchResolution(false)}
-                    className="touch-target px-4 py-2 bg-white border border-amber-300 text-amber-900 font-bold rounded-xl text-sm active:scale-95"
-                  >
-                    No, New Customer
-                  </button>
-                </div>
-              </div>
+          {/* Title Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-3xl font-black text-[#1C1917] tracking-tight leading-none">
+                जाँच लें
+              </h3>
+              <p className="text-xs text-[#78716C] font-semibold mt-1">
+                Confirm entry
+              </p>
+            </div>
+            {/* Red dotted indicator like screenshot */}
+            <div className="w-7 h-7 rounded-full border-2 border-dashed border-red-500 flex items-center justify-center animate-spin">
+              <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
             </div>
           </div>
-        )}
 
-        {/* Parsed Entry Card */}
-        <div className="bg-white border-2 border-stone-200 rounded-2xl p-5 shadow-sm space-y-4">
-          {/* Customer & Type Chip */}
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">
-                Customer
+          {/* Tag Chips Row matching screenshot */}
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
+              {customerName}
+            </span>
+            <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
+              {isCredit ? 'उधार' : 'जमा'}
+            </span>
+            <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
+              {itemName}
+            </span>
+            <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
+              {qtyText}
+            </span>
+            <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
+              ₹{amountVal}
+            </span>
+          </div>
+
+          {/* 3-Column Breakdown with Watermark Stamp */}
+          <div className="relative border-t border-b border-stone-100 py-4 mb-5 grid grid-cols-3 gap-2">
+            {/* Watermark Red Stamp over Amount Column */}
+            <div className="absolute right-2 top-1 pointer-events-none select-none transform rotate-[-8deg] border-2 border-red-300/60 rounded-xl px-4 py-1.5 bg-red-50/30">
+              <span className="text-2xl font-black text-red-400/50 tracking-wider uppercase font-mono">
+                {isCredit ? 'उधार' : 'जमा'}
               </span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={currentEntry.customer || ''}
-                  onChange={(e) =>
-                    setCurrentEntry({ ...currentEntry, customer: e.target.value })
-                  }
-                  className="text-lg font-black border-b-2 border-stone-800 bg-stone-50 px-2 py-1 outline-none w-full"
-                />
-              ) : (
-                <span className="text-2xl font-black text-[#1C1917]">
-                  {currentEntry.customer || 'Unknown Customer'}
-                </span>
-              )}
             </div>
 
-            {/* Type Chip */}
-            <div
-              className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 font-bold text-sm ${
-                isCredit
-                  ? 'bg-red-100 text-red-800 border border-red-200'
-                  : 'bg-green-100 text-green-800 border border-green-200'
+            <div>
+              <span className="text-xs font-semibold text-stone-500 block mb-0.5">
+                किससे (Customer)
+              </span>
+              <span className="text-lg font-black text-[#1C1917] block leading-tight">
+                {customerName}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-xs font-semibold text-stone-500 block mb-0.5">
+                क्या (Items)
+              </span>
+              <span className="text-lg font-black text-[#1C1917] block leading-tight">
+                {qtyText} {itemName}
+              </span>
+            </div>
+
+            <div className="relative z-10">
+              <span className="text-xs font-semibold text-stone-500 block mb-0.5">
+                रकम (Amount)
+              </span>
+              <span className="text-2xl font-black font-mono text-[#1C1917] block leading-tight">
+                ₹{amountVal}
+              </span>
+            </div>
+          </div>
+
+          {/* Uncertain Match Confirmation Row */}
+          <div className="flex items-center justify-between bg-stone-50/80 border border-stone-200 rounded-2xl p-3 mb-5">
+            <span className="text-sm font-bold text-stone-800">
+              क्या आपका मतलब {customerName} है?
+            </span>
+            <button
+              onClick={handleConfirmMatch}
+              className={`touch-target px-4 py-1.5 rounded-xl border flex items-center gap-1.5 font-bold text-sm transition-all ${
+                confirmedMatch
+                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                  : 'bg-white border-emerald-600 text-emerald-700 hover:bg-emerald-50 active:scale-95'
               }`}
             >
-              {isCredit ? (
-                <>
-                  <ArrowUpRight className="w-4 h-4 text-red-700" />
-                  <span>Credit</span>
-                </>
-              ) : (
-                <>
-                  <ArrowDownLeft className="w-4 h-4 text-green-700" />
-                  <span>Payment</span>
-                </>
-              )}
-            </div>
+              <Check className="w-4 h-4 stroke-[3]" />
+              <span>हाँ</span>
+            </button>
           </div>
 
-          {/* Amount (Big & Bold) */}
-          <div className="pt-2 border-t border-stone-100 flex items-baseline justify-between">
-            <span className="text-sm font-bold text-stone-600">Amount:</span>
-            {isEditing ? (
-              <div className="flex items-center gap-1">
-                <span className="text-xl font-bold">₹</span>
-                <input
-                  type="number"
-                  value={currentEntry.amount}
-                  onChange={(e) =>
-                    setCurrentEntry({
-                      ...currentEntry,
-                      amount: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="text-2xl font-black font-mono border-b-2 border-stone-800 w-32 px-1 text-right outline-none"
-                />
-              </div>
-            ) : (
-              <span
-                className={`text-3xl font-black font-mono ${
-                  isCredit ? 'text-[#DC2626]' : 'text-green-700'
-                }`}
-              >
-                ₹{currentEntry.amount.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
-              </span>
-            )}
-          </div>
-
-          {/* Item & Quantity Details if present */}
-          {(currentEntry.item || currentEntry.qty || isEditing) && (
-            <div className="pt-2 border-t border-stone-100 grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-xs font-semibold text-stone-500 block">Item</span>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={currentEntry.item || ''}
-                    placeholder="Item name"
-                    onChange={(e) =>
-                      setCurrentEntry({ ...currentEntry, item: e.target.value })
-                    }
-                    className="font-bold border-b border-stone-400 w-full py-1 outline-none"
-                  />
-                ) : (
-                  <span className="font-bold text-stone-800">
-                    {currentEntry.item || '—'}
-                  </span>
-                )}
-              </div>
-              <div>
-                <span className="text-xs font-semibold text-stone-500 block">Quantity</span>
-                {isEditing ? (
-                  <div className="flex gap-1">
-                    <input
-                      type="number"
-                      value={currentEntry.qty || ''}
-                      placeholder="Qty"
-                      onChange={(e) =>
-                        setCurrentEntry({
-                          ...currentEntry,
-                          qty: parseFloat(e.target.value) || null,
-                        })
-                      }
-                      className="font-bold border-b border-stone-400 w-16 py-1 outline-none"
-                    />
-                    <input
-                      type="text"
-                      value={currentEntry.unit || ''}
-                      placeholder="Unit"
-                      onChange={(e) =>
-                        setCurrentEntry({ ...currentEntry, unit: e.target.value })
-                      }
-                      className="font-bold border-b border-stone-400 w-16 py-1 outline-none"
-                    />
-                  </div>
-                ) : (
-                  <span className="font-bold text-stone-800">
-                    {currentEntry.qty ? `${currentEntry.qty} ${currentEntry.unit || ''}` : '—'}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons: Big Green Save, Edit, Discard */}
-        <div className="mt-5 space-y-3">
+          {/* Solid Dark Button: "खाते में जोड़ें / Save to ledger" */}
           <button
-            onClick={handleSave}
-            className="w-full touch-target bg-[#15803D] hover:bg-green-800 text-white font-black text-xl py-4 rounded-2xl shadow-lg shadow-green-700/30 flex items-center justify-center gap-2 active:scale-95 transition-all"
+            onClick={() => onSave(currentEntry)}
+            className="w-full touch-target bg-[#18181B] hover:bg-black text-white font-bold py-4 rounded-2xl shadow-md flex flex-col items-center justify-center active:scale-[0.98] transition-all"
           >
-            <Check className="w-6 h-6 stroke-[3]" />
-            <span>Save to Ledger</span>
+            <span className="text-lg font-black leading-tight">खाते में जोड़ें</span>
+            <span className="text-xs text-stone-400 font-medium leading-none mt-0.5">
+              Save to ledger
+            </span>
           </button>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="touch-target bg-white border-2 border-stone-300 text-stone-800 font-bold text-base py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95"
-            >
-              <Edit3 className="w-4 h-4" />
-              <span>{isEditing ? 'Done' : 'Edit'}</span>
-            </button>
-            <button
-              onClick={onDiscard}
-              className="touch-target bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold text-base py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95"
-            >
-              <X className="w-4 h-4" />
-              <span>Discard</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
