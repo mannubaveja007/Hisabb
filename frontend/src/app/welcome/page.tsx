@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { WelcomeSequence } from './WelcomeSequence';
+import { ComparisonSequence } from './ComparisonSequence';
 
 export const metadata: Metadata = {
   title: 'Hisabb — बोलो. हिसाब हो गया.',
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function WelcomePage() {
-  return <main><WelcomeSequence /></main>;
+  return <main><WelcomeSequence /><ComparisonSequence /></main>;
 }

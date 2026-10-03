@@ -17,3 +17,12 @@ export const demoCustomers = [
 ];
 
 export const stageSummary = "Hisabb turns a spoken credit note into a saved ledger entry for Sharma ji: five kilos of rice on credit for seven hundred rupees.";
+
+export const comparisonEntries = [
+  { notebook: "शर्मा जी", hisabb: "Sharma", item: "चीनी", amount: 200 },
+  { notebook: "Sharma", hisabb: "Sharma", item: "चाय", amount: 150 },
+  { notebook: "Sharmaji", hisabb: "Sharma", item: "तेल", amount: 350 },
+];
+
+export const comparisonSummary = "Sequence 2 compares an illustrative paper khata with Hisabb: three spoken entries become one clear customer balance.";
+export const comparisonCaption = "कॉपी से हिसाब तक";
