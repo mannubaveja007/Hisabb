@@ -66,7 +66,7 @@ export const MOCK_CUSTOMERS: CustomerBalanceItem[] = [
 export const MOCK_INVENTORY: InventoryItem[] = [
   {
     id: 12,
-    name: 'Amul Doodh',
+    name: 'Amul Milk',
     unit: 'packet',
     current_stock: 4.0,
     min_stock_threshold: 10.0,
@@ -75,7 +75,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 13,
-    name: 'Aashirvaad Atta 5kg',
+    name: 'Aashirvaad Flour 5kg',
     unit: 'bag',
     current_stock: 18.0,
     min_stock_threshold: 5.0,
@@ -84,7 +84,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 14,
-    name: 'Madhur Cheeni 1kg',
+    name: 'Sugar 1kg',
     unit: 'kg',
     current_stock: 7.0,
     min_stock_threshold: 15.0,
@@ -93,7 +93,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 15,
-    name: 'Tata Namak 1kg',
+    name: 'Tata Salt 1kg',
     unit: 'packet',
     current_stock: 22.0,
     min_stock_threshold: 8.0,
@@ -102,7 +102,7 @@ export const MOCK_INVENTORY: InventoryItem[] = [
   },
   {
     id: 16,
-    name: 'Fortune Sarson Tel 1L',
+    name: 'Mustard Oil 1L',
     unit: 'bottle',
     current_stock: 3.0,
     min_stock_threshold: 6.0,
@@ -124,10 +124,10 @@ export const MOCK_CUSTOMER_HISTORIES: Record<number, CustomerHistoryResponse> = 
         id: 501,
         type: 'credit',
         amount: 700.0,
-        item_name: 'Aashirvaad Atta 5kg',
+        item_name: 'Aashirvaad Flour 5kg',
         qty: 2.0,
         unit: 'bag',
-        notes: 'Atta udhaar liya',
+        notes: 'Flour taken on credit',
         created_at: '2026-10-03T09:15:00Z',
       },
       {
@@ -137,14 +137,14 @@ export const MOCK_CUSTOMER_HISTORIES: Record<number, CustomerHistoryResponse> = 
         item_name: null,
         qty: null,
         unit: null,
-        notes: 'Cash payment di',
+        notes: 'Cash payment received',
         created_at: '2026-09-29T12:00:00Z',
       },
       {
         id: 450,
         type: 'credit',
         amount: 500.0,
-        item_name: 'Madhur Cheeni',
+        item_name: 'Sugar',
         qty: 10.0,
         unit: 'kg',
         notes: null,
@@ -164,10 +164,10 @@ export const MOCK_CUSTOMER_HISTORIES: Record<number, CustomerHistoryResponse> = 
         id: 495,
         type: 'credit',
         amount: 450.0,
-        item_name: 'Madhur Cheeni 1kg',
+        item_name: 'Sugar 1kg',
         qty: 5.0,
         unit: 'kg',
-        notes: 'Cheeni udhaar',
+        notes: 'Sugar taken on credit',
         created_at: '2026-10-02T18:40:00Z',
       },
     ],
@@ -182,8 +182,8 @@ export const MOCK_WEEKLY_SUMMARY: WeeklyReminderItem[] = [
       phone: '9845678901',
     },
     balance: 950.0,
-    reminder_text: 'Namaste Pooja Gupta ji, aapka dukaan ka kul baaki hisaab ₹950.00 hai. Kripya samay par bhuqtan karein. Dhanyawad!',
-    wa_link: 'https://wa.me/919845678901?text=Namaste%20Pooja%20Gupta%20ji%2C%20aapka%20dukaan%20ka%20kul%20baaki%20hisaab%20%E2%82%B9950.00%20hai.%20Kripya%20samay%20par%20bhuqtan%20karein.%20Dhanyawad!',
+    reminder_text: 'Hello Pooja Gupta, your outstanding store credit balance is ₹950.00. Please arrange payment when convenient. Thank you!',
+    wa_link: 'https://wa.me/919845678901?text=Hello%20Pooja%20Gupta%2C%20your%20outstanding%20store%20credit%20balance%20is%20%E2%82%B9950.00.%20Please%20arrange%20payment%20when%20convenient.%20Thank%20you!',
   },
   {
     customer: {
@@ -192,8 +192,8 @@ export const MOCK_WEEKLY_SUMMARY: WeeklyReminderItem[] = [
       phone: '9876543210',
     },
     balance: 700.0,
-    reminder_text: 'Namaste Ramesh Kumar ji, aapka dukaan ka kul baaki hisaab ₹700.00 hai. Kripya samay par bhuqtan karein. Dhanyawad!',
-    wa_link: 'https://wa.me/919876543210?text=Namaste%20Ramesh%20Kumar%20ji%2C%20aapka%20dukaan%20ka%20kul%20baaki%20hisaab%20%E2%82%B9700.00%20hai.%20Kripya%20samay%20par%20bhuqtan%20karein.%20Dhanyawad!',
+    reminder_text: 'Hello Ramesh Kumar, your outstanding store credit balance is ₹700.00. Please arrange payment when convenient. Thank you!',
+    wa_link: 'https://wa.me/919876543210?text=Hello%20Ramesh%20Kumar%2C%20your%20outstanding%20store%20credit%20balance%20is%20%E2%82%B9700.00.%20Please%20arrange%20payment%20when%20convenient.%20Thank%20you!',
   },
   {
     customer: {
@@ -202,8 +202,8 @@ export const MOCK_WEEKLY_SUMMARY: WeeklyReminderItem[] = [
       phone: '9823456789',
     },
     balance: 450.0,
-    reminder_text: 'Namaste Anita Sharma ji, aapka dukaan ka kul baaki hisaab ₹450.00 hai. Kripya samay par bhuqtan karein. Dhanyawad!',
-    wa_link: 'https://wa.me/919823456789?text=Namaste%20Anita%20Sharma%20ji%2C%20aapka%20dukaan%20ka%20kul%20baaki%20hisaab%20%E2%82%B9450.00%20hai.%20Kripya%20samay%20par%20bhuqtan%20karein.%20Dhanyawad!',
+    reminder_text: 'Hello Anita Sharma, your outstanding store credit balance is ₹450.00. Please arrange payment when convenient. Thank you!',
+    wa_link: 'https://wa.me/919823456789?text=Hello%20Anita%20Sharma%2C%20your%20outstanding%20store%20credit%20balance%20is%20%E2%82%B9450.00.%20Please%20arrange%20payment%20when%20convenient.%20Thank%20you!',
   },
   {
     customer: {
@@ -212,8 +212,8 @@ export const MOCK_WEEKLY_SUMMARY: WeeklyReminderItem[] = [
       phone: '9878901234',
     },
     balance: 320.0,
-    reminder_text: 'Namaste Vikas Chawla ji, aapka dukaan ka kul baaki hisaab ₹320.00 hai. Kripya samay par bhuqtan karein. Dhanyawad!',
-    wa_link: 'https://wa.me/919878901234?text=Namaste%20Vikas%20Chawla%20ji%2C%20aapka%20dukaan%20ka%20kul%20baaki%20hisaab%20%E2%82%B9320.00%20hai.%20Kripya%20samay%20par%20bhuqtan%20karein.%20Dhanyawad!',
+    reminder_text: 'Hello Vikas Chawla, your outstanding store credit balance is ₹320.00. Please arrange payment when convenient. Thank you!',
+    wa_link: 'https://wa.me/919878901234?text=Hello%20Vikas%20Chawla%2C%20your%20outstanding%20store%20credit%20balance%20is%20%E2%82%B9320.00.%20Please%20arrange%20payment%20when%20convenient.%20Thank%20you!',
   },
   {
     customer: {
@@ -222,24 +222,23 @@ export const MOCK_WEEKLY_SUMMARY: WeeklyReminderItem[] = [
       phone: '9834567890',
     },
     balance: 280.0,
-    reminder_text: 'Namaste Manpreet Singh ji, aapka dukaan ka kul baaki hisaab ₹280.00 hai. Kripya samay par bhuqtan karein. Dhanyawad!',
-    wa_link: 'https://wa.me/919834567890?text=Namaste%20Manpreet%20Singh%20ji%2C%20aapka%20dukaan%20ka%20kul%20baaki%20hisaab%20%E2%82%B9280.00%20hai.%20Kripya%20samay%20par%20bhuqtan%20karein.%20Dhanyawad!',
+    reminder_text: 'Hello Manpreet Singh, your outstanding store credit balance is ₹280.00. Please arrange payment when convenient. Thank you!',
+    wa_link: 'https://wa.me/919834567890?text=Hello%20Manpreet%20Singh%2C%20your%20outstanding%20store%20credit%20balance%20is%20%E2%82%B9280.00.%20Please%20arrange%20payment%20when%20convenient.%20Thank%20you!',
   },
 ];
 
-// Sample parsed draft for bottom sheet confirmation
 export const MOCK_DRAFT_ENTRY: ParsedDraftEntry = {
   customer: 'Sharma',
   type: 'credit',
-  item: 'Madhur Cheeni',
+  item: 'Sugar',
   qty: 2.0,
-  unit: 'kilo',
+  unit: 'kg',
   amount: 90.0,
   confidence: 0.94,
   customer_match: {
     id: 102,
     name: 'Anita Sharma',
     phone: '9823456789',
-    score: 0.78, // Uncertain match: triggers "Did you mean Sharma Ji?" confirmation
+    score: 0.78, // Uncertain match: triggers "Did you mean Anita Sharma?"
   },
 };

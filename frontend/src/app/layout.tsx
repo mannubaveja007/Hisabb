@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hisabb - बोल के हिसाब",
-  description: "Local-first, voice-driven credit ledger for Indian Kirana & Retail stores",
+  title: "Hisabb - Voice Credit Ledger",
+  description: "Local-first, voice-driven credit ledger for retail shops",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -26,11 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="hi">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
       </head>
-      <body className="min-h-screen bg-[#FAF8F3] text-[#1C1917] antialiased select-none">
+      <body
+        suppressHydrationWarning
+        className="min-h-screen bg-[#FAF8F3] text-[#1C1917] antialiased select-none"
+      >
         {children}
       </body>
     </html>
