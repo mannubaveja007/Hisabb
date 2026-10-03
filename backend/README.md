@@ -16,6 +16,8 @@ Local-first, voice-driven credit ledger for Indian Kirana & Retail stores.
 
 Serves the Next.js static PWA export at `/` and backend API endpoints under `/api`.
 
+For the privacy-first local mode, run Ollama and Whisper on the same machine as this backend. Download the models once while online; after that, the ledger and voice processing can run without internet. A Render deployment is a hosted mode and should not be described as offline.
+
 ## Endpoints
 - `POST /api/transcribe`: Ingests audio files via `faster-whisper` (base, int8 on CPU)
 - `POST /api/parse`: Extracts structured ledger entries using Ollama (`qwen2.5:3b`) with fuzzy customer resolution
