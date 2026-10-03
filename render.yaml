@@ -13,6 +13,8 @@ services:
         sync: false
       - key: OLLAMA_BASE_URL
         sync: false
+      - key: OLLAMA_API_KEY
+        sync: false
       - key: OLLAMA_MODEL
         sync: false
       - key: WHISPER_MODEL_SIZE

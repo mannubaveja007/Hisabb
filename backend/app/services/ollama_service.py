@@ -121,7 +121,11 @@ def call_ollama(text: str) -> dict:
             "temperature": 0.1
         }
     }
-    response = requests.post(url, json=payload, timeout=45)
+    headers = {}
+    if settings.OLLAMA_API_KEY:
+        headers["Authorization"] = f"Bearer {settings.OLLAMA_API_KEY}"
+
+    response = requests.post(url, json=payload, headers=headers, timeout=45)
     response.raise_for_status()
     raw_response = response.json().get("response", "{}")
     return json.loads(raw_response)

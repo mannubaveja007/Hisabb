@@ -4,6 +4,13 @@ Local-first, voice-driven credit ledger for Indian Kirana & Retail stores.
 
 Designed for non-technical shopkeepers with a warm neutral palette, large tactile touch targets, high contrast, and zero typing. Single-process architecture: FastAPI serves the exported Next.js PWA static bundle at `/` while running API endpoints at `/api/`.
 
+Hisabb has two modes:
+
+- **Local/offline mode:** after the Whisper and Ollama models are downloaded once, voice processing and ledger data can stay on a laptop or local Wi-Fi network without internet access.
+- **Hosted demo mode:** the frontend may run on Vercel and the backend on Render for sharing. This mode requires network access and may have hosting limits; it is not the offline mode.
+
+See [`SUBMISSION.md`](./SUBMISSION.md) for the open-innovation explanation and weekend-project submission draft.
+
 ---
 
 ## Architecture Overview
