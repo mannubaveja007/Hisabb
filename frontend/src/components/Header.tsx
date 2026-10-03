@@ -24,9 +24,9 @@ export const Header: React.FC<HeaderProps> = ({
             className="text-left focus:outline-none group"
           >
             <h1 className="text-3xl font-black tracking-tight text-[#1C1917] leading-none">
-              खाता <span className="text-lg font-bold text-stone-500 font-sans tracking-normal">/ Khata</span>
+              Khata <span className="text-lg font-bold text-stone-500 font-sans tracking-normal">/ Hisabb</span>
             </h1>
-            <p className="text-xs text-[#57534E] font-medium mt-0.5">Hisabb ledger</p>
+            <p className="text-xs text-[#57534E] font-medium mt-0.5">Digital Udhaar Ledger</p>
           </button>
         </div>
 
@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Package className="w-4 h-4 text-emerald-600 stroke-[2.2]" />
-            <span>स्टॉक {lowStockCount > 0 ? lowStockCount : ''}</span>
+            <span>Stock {lowStockCount > 0 ? lowStockCount : ''}</span>
           </button>
 
           {/* Weekly tab with underline */}
@@ -54,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : ''
             }`}
           >
-            हफ्ता (Weekly)
+            Weekly (हफ्ता)
           </button>
         </div>
       </div>

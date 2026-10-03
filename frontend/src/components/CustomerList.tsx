@@ -21,10 +21,10 @@ export const CustomerList: React.FC<CustomerListProps> = ({
       <div className="flex items-center justify-between mb-4 mt-2 px-1">
         <div>
           <h2 className="text-3xl font-black text-[#1C1917] tracking-tight">
-            किससे लेना है?
+            Kisse Lena Hai?
           </h2>
           <p className="text-xs text-[#57534E] font-medium mt-0.5">
-            Customers with credit
+            Customers with pending credit · उधार बाकी
           </p>
         </div>
         <button

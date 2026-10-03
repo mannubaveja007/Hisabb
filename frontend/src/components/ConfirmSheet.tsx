@@ -33,11 +33,11 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
 
   const isCredit = currentEntry.type === 'credit';
   const requiresCustomer = currentEntry.type === 'credit' || currentEntry.type === 'payment';
-  const customerName = currentEntry.customer || 'ग्राहक नहीं मिला';
-  const itemName = currentEntry.item || 'वस्तु नहीं मिली';
+  const customerName = currentEntry.customer || 'Customer not found';
+  const itemName = currentEntry.item || 'Item';
   const qtyText = currentEntry.qty !== null && currentEntry.qty !== undefined
-    ? `${currentEntry.qty} ${currentEntry.unit || 'इकाई'}`
-    : 'मात्रा नहीं मिली';
+    ? `${currentEntry.qty} ${currentEntry.unit || ''}`
+    : '';
   const amountVal = currentEntry.amount;
 
   // Check if fuzzy customer match needs verification (score 70-85)
@@ -90,10 +90,10 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-3xl font-black text-[#1C1917] tracking-tight leading-none">
-                जाँच लें
+                Check & Confirm
               </h3>
               <p className="text-xs text-[#78716C] font-semibold mt-1">
-                Confirm entry
+                Confirm entry · हिसाब चेक करें
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -115,14 +115,18 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
               {customerName}
             </span>
             <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
-              {isCredit ? 'उधार' : 'जमा'}
+              {isCredit ? 'Udhaar / Credit' : 'Payment / Jama'}
             </span>
-            <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
-              {itemName}
-            </span>
-            <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
-              {qtyText}
-            </span>
+            {itemName && (
+              <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
+                {itemName}
+              </span>
+            )}
+            {qtyText && (
+              <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
+                {qtyText}
+              </span>
+            )}
             <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
               ₹{amountVal}
             </span>
@@ -133,13 +137,13 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
             {/* Watermark Red Stamp over Amount Column */}
             <div className="absolute right-2 top-1 pointer-events-none select-none transform rotate-[-8deg] border-2 border-red-300/60 rounded-xl px-4 py-1.5 bg-red-50/30">
               <span className="text-2xl font-black text-red-400/50 tracking-wider uppercase font-mono">
-                {isCredit ? 'उधार' : 'जमा'}
+                {isCredit ? 'UDHAAR' : 'JAMA'}
               </span>
             </div>
 
             <div>
               <span className="text-xs font-semibold text-stone-500 block mb-0.5">
-                किससे (Customer)
+                Customer (ग्राहक)
               </span>
               <span className="text-lg font-black text-[#1C1917] block leading-tight">
                 {customerName}
@@ -148,16 +152,16 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
 
             <div>
               <span className="text-xs font-semibold text-stone-500 block mb-0.5">
-                क्या (Items)
+                Items (सामान)
               </span>
               <span className="text-lg font-black text-[#1C1917] block leading-tight">
-                {qtyText} {itemName}
+                {qtyText ? `${qtyText} ` : ''}{itemName}
               </span>
             </div>
 
             <div className="relative z-10">
               <span className="text-xs font-semibold text-stone-500 block mb-0.5">
-                रकम (Amount)
+                Amount (रकम)
               </span>
               <span className="text-2xl font-black font-mono text-[#1C1917] block leading-tight">
                 ₹{amountVal}
@@ -169,27 +173,27 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
           {isUncertainMatch && (
             <div className="flex items-center justify-between bg-stone-50/80 border border-stone-200 rounded-2xl p-3 mb-5">
               <span className="text-sm font-bold text-stone-800">
-                क्या आपका मतलब {customerName} है?
+                Did you mean {customerName}? (क्या मतलब {customerName} है?)
               </span>
               <button
                 onClick={handleConfirmMatch}
                 className="touch-target px-4 py-1.5 rounded-xl border flex items-center gap-1.5 font-bold text-sm transition-all bg-white border-emerald-600 text-emerald-700 hover:bg-emerald-50 active:scale-95"
               >
                 <Check className="w-4 h-4 stroke-[3]" />
-                <span>हाँ</span>
+                <span>Yes (हाँ)</span>
               </button>
             </div>
           )}
 
-          {/* Solid Dark Button: "खाते में जोड़ें / Save to ledger" */}
+          {/* Solid Dark Button: "Add to Khata / Save to ledger" */}
           <button
             disabled={currentEntry.confidence <= 0 || (requiresCustomer && !currentEntry.customer?.trim()) || (requiresCustomer && currentEntry.amount <= 0)}
             onClick={() => onSave(currentEntry)}
             className="w-full touch-target bg-[#18181B] hover:bg-black disabled:cursor-not-allowed disabled:opacity-50 text-white font-bold py-4 rounded-2xl shadow-md flex flex-col items-center justify-center active:scale-[0.98] transition-all"
           >
-            <span className="text-lg font-black leading-tight">खाते में जोड़ें</span>
+            <span className="text-lg font-black leading-tight">Add to Khata</span>
             <span className="text-xs text-stone-400 font-medium leading-none mt-0.5">
-              Save to ledger
+              खाते में जोड़ें · Save to ledger
             </span>
           </button>
         </div>
