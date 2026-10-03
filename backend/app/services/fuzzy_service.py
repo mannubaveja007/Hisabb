@@ -1,19 +1,27 @@
 from typing import Optional, List
 from rapidfuzz import fuzz
+from unidecode import unidecode
+import re
 from sqlalchemy.orm import Session
 from app.models import Customer
 from app.schemas import CustomerMatch
+
+def _normalize_name(value: str) -> str:
+    transliterated = unidecode(value)
+    normalized = re.sub(r"[^a-z0-9 ]+", " ", transliterated.lower())
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+    for suffix in (" ji", " sahab", " bhai", " bhaji", " uncle", " sir"):
+        if normalized.endswith(suffix):
+            normalized = normalized[:-len(suffix)].strip()
+            break
+    return normalized
+
 
 def match_customer(db: Session, raw_name: Optional[str]) -> Optional[CustomerMatch]:
     if not raw_name or not raw_name.strip():
         return None
 
-    query_name = raw_name.strip().lower()
-    # Normalize common Indian honorifics
-    for suffix in [" ji", " sahab", " bhai", " bhaji", " uncle", " sir"]:
-        if query_name.endswith(suffix):
-            query_name = query_name[:-len(suffix)].strip()
-            break
+    query_name = _normalize_name(raw_name)
 
     customers: List[Customer] = db.query(Customer).all()
     if not customers:
@@ -23,16 +31,16 @@ def match_customer(db: Session, raw_name: Optional[str]) -> Optional[CustomerMat
     best_score = 0.0
 
     for c in customers:
-        c_name_lower = c.name.strip().lower()
+        c_name_lower = _normalize_name(c.name)
 
-        # If exact full match (ignoring case)
+        # Full-name containment is a strong match for spoken first/last names.
         if query_name == c_name_lower:
             calc_score = 100.0
         else:
             ts_ratio = fuzz.token_sort_ratio(query_name, c_name_lower)
             set_ratio = fuzz.token_set_ratio(query_name, c_name_lower)
-            # Balanced score: penalizes missing tokens while rewarding token containment
-            calc_score = (ts_ratio + set_ratio) / 2.0
+            partial_ratio = fuzz.partial_token_set_ratio(query_name, c_name_lower)
+            calc_score = max((ts_ratio + set_ratio) / 2.0, partial_ratio)
 
         if calc_score > best_score:
             best_score = calc_score

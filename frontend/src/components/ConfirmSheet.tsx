@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ParsedDraftEntry } from '@/types/hisabb';
 import { Check, Loader2, X } from 'lucide-react';
 
@@ -19,30 +19,40 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
   onSave,
   onDiscard,
 }) => {
-  if (!isOpen || !entry) return null;
-
-  const [currentEntry, setCurrentEntry] = useState<ParsedDraftEntry>({ ...entry });
+  const [currentEntry, setCurrentEntry] = useState<ParsedDraftEntry | null>(entry);
   const [confirmedMatch, setConfirmedMatch] = useState<boolean | null>(null);
 
+  useEffect(() => {
+    setCurrentEntry(entry ? { ...entry } : null);
+    setConfirmedMatch(null);
+  }, [entry]);
+
+  if (!isOpen || !currentEntry) return null;
+
   const isCredit = currentEntry.type === 'credit';
-  const customerName = currentEntry.customer || 'शर्मा जी';
-  const itemName = currentEntry.item || 'चावल';
-  const qtyText = currentEntry.qty ? `${currentEntry.qty} ${currentEntry.unit || 'किलो'}` : '5 किलो';
-  const amountVal = currentEntry.amount || 700;
+  const requiresCustomer = currentEntry.type === 'credit' || currentEntry.type === 'payment';
+  const customerName = currentEntry.customer || 'ग्राहक नहीं मिला';
+  const itemName = currentEntry.item || 'वस्तु नहीं मिली';
+  const qtyText = currentEntry.qty !== null && currentEntry.qty !== undefined
+    ? `${currentEntry.qty} ${currentEntry.unit || 'इकाई'}`
+    : 'मात्रा नहीं मिली';
+  const amountVal = currentEntry.amount;
 
   // Check if fuzzy customer match needs verification (score 70-85)
-  const isUncertainMatch =
+  const isUncertainMatch = Boolean(
     currentEntry.customer_match &&
     currentEntry.customer_match.score >= 0.70 &&
-    currentEntry.customer_match.score <= 0.85 &&
-    confirmedMatch === null;
+    currentEntry.customer_match.score < 0.85 &&
+    confirmedMatch === null
+  );
 
   const handleConfirmMatch = () => {
     if (currentEntry.customer_match) {
-      setCurrentEntry((prev) => ({
-        ...prev,
-        customer: currentEntry.customer_match!.name,
-      }));
+      setCurrentEntry((prev) =>
+        prev
+          ? { ...prev, customer: currentEntry.customer_match!.name }
+          : prev
+      );
     }
     setConfirmedMatch(true);
   };
@@ -147,27 +157,26 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
           </div>
 
           {/* Uncertain Match Confirmation Row */}
-          <div className="flex items-center justify-between bg-stone-50/80 border border-stone-200 rounded-2xl p-3 mb-5">
-            <span className="text-sm font-bold text-stone-800">
-              क्या आपका मतलब {customerName} है?
-            </span>
-            <button
-              onClick={handleConfirmMatch}
-              className={`touch-target px-4 py-1.5 rounded-xl border flex items-center gap-1.5 font-bold text-sm transition-all ${
-                confirmedMatch
-                  ? 'bg-emerald-600 border-emerald-600 text-white'
-                  : 'bg-white border-emerald-600 text-emerald-700 hover:bg-emerald-50 active:scale-95'
-              }`}
-            >
-              <Check className="w-4 h-4 stroke-[3]" />
-              <span>हाँ</span>
-            </button>
-          </div>
+          {isUncertainMatch && (
+            <div className="flex items-center justify-between bg-stone-50/80 border border-stone-200 rounded-2xl p-3 mb-5">
+              <span className="text-sm font-bold text-stone-800">
+                क्या आपका मतलब {customerName} है?
+              </span>
+              <button
+                onClick={handleConfirmMatch}
+                className="touch-target px-4 py-1.5 rounded-xl border flex items-center gap-1.5 font-bold text-sm transition-all bg-white border-emerald-600 text-emerald-700 hover:bg-emerald-50 active:scale-95"
+              >
+                <Check className="w-4 h-4 stroke-[3]" />
+                <span>हाँ</span>
+              </button>
+            </div>
+          )}
 
           {/* Solid Dark Button: "खाते में जोड़ें / Save to ledger" */}
           <button
+            disabled={currentEntry.confidence <= 0 || (requiresCustomer && !currentEntry.customer?.trim()) || (requiresCustomer && currentEntry.amount <= 0)}
             onClick={() => onSave(currentEntry)}
-            className="w-full touch-target bg-[#18181B] hover:bg-black text-white font-bold py-4 rounded-2xl shadow-md flex flex-col items-center justify-center active:scale-[0.98] transition-all"
+            className="w-full touch-target bg-[#18181B] hover:bg-black disabled:cursor-not-allowed disabled:opacity-50 text-white font-bold py-4 rounded-2xl shadow-md flex flex-col items-center justify-center active:scale-[0.98] transition-all"
           >
             <span className="text-lg font-black leading-tight">खाते में जोड़ें</span>
             <span className="text-xs text-stone-400 font-medium leading-none mt-0.5">

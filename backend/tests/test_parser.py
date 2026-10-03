@@ -82,7 +82,4 @@ def test_ollama_parser_invalid_json_fallback():
     # Simulate repeated invalid JSON from Ollama
     with patch("app.services.ollama_service.call_ollama", side_effect=Exception("Invalid JSON format")):
         entries = parse_with_ollama("Gibberish unparsable speech string")
-        assert len(entries) == 1
-        assert entries[0].confidence == 0.0
-        assert entries[0].amount == 0.0
-        assert entries[0].item == "Gibberish unparsable speech string"
+        assert entries == []

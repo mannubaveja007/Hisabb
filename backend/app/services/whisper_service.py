@@ -24,12 +24,13 @@ class WhisperService:
 
         try:
             model = self._get_model()
-            # Auto-detect language, prioritize hi/pa/en context
             segments, info = model.transcribe(
                 tmp_path,
                 beam_size=5,
-                language=None, # auto detect
-                initial_prompt="Hindi, Punjabi, and Indian English store transactions. Udhaar, jama, khata, rupaye, packets."
+                language=settings.WHISPER_LANGUAGE or None,
+                task="transcribe",
+                condition_on_previous_text=True,
+                initial_prompt="किराना दुकान का हिसाब। शर्मा जी, अनीता, गुप्ता, उधार, जमा, बाकी, रुपये, किलो, पैकेट। Hindi and Hinglish customer names and amounts."
             )
             full_text = " ".join([segment.text.strip() for segment in segments]).strip()
             detected_lang = info.language if info and info.language else "hi"
