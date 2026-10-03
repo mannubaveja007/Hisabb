@@ -26,3 +26,23 @@ export const comparisonEntries = [
 
 export const comparisonSummary = "Sequence 2 compares an illustrative paper khata with Hisabb: three spoken entries become one clear customer balance.";
 export const comparisonCaption = "कॉपी से हिसाब तक";
+
+export const weeklySummary = {
+  total: 2450,
+  debtors: 4,
+  topCustomer: "शर्मा जी",
+  topBalance: 700,
+  reminder: "नमस्ते शर्मा जी, आपका ₹700 बाकी है। जब सुविधा हो, भेज दीजिए। धन्यवाद 🙏",
+  payment: 300,
+  newBalance: 400,
+};
+
+export const weeklyDebtors = [
+  { name: "शर्मा जी", detail: "चावल · आज", balance: 700 },
+  { name: "अनीता देवी", detail: "दाल · कल", balance: 620 },
+  { name: "राजू भाई", detail: "तेल · सोम", balance: 580 },
+  { name: "किरण स्टोर", detail: "चीनी · शुक्र", balance: 550 },
+];
+
+export const summaryCaption = "तगादा. बिना झंझट.";
+export const summaryDescription = "A weekly summary sorts the biggest balance first, drafts a respectful reminder, and records the payment.";
