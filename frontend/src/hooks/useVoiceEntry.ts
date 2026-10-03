@@ -5,12 +5,13 @@ import { useRecorder } from '@/hooks/useRecorder';
 import { api } from '@/lib/api';
 import { ParsedDraftEntry, EntryInput } from '@/types/hisabb';
 import { revalidateAllData } from '@/hooks/useData';
-import { MOCK_DRAFT_ENTRY, MOCK_TRANSCRIPTION_TEXT } from '@/mock/data';
 
 export interface UseVoiceEntryResult {
   micState: 'idle' | 'recording' | 'processing';
   transcriptionText: string;
   draftEntry: ParsedDraftEntry | null;
+  pendingEntryCount: number;
+  queuePosition: { current: number; total: number } | null;
   isConfirmOpen: boolean;
   error: string | null;
   toggleRecording: () => Promise<void>;
@@ -26,6 +27,7 @@ export function useVoiceEntry(): UseVoiceEntryResult {
   const [transcriptionText, setTranscriptionText] = useState<string>('');
   const [draftEntry, setDraftEntry] = useState<ParsedDraftEntry | null>(null);
   const [pendingEntries, setPendingEntries] = useState<ParsedDraftEntry[]>([]);
+  const [pendingTotal, setPendingTotal] = useState(0);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +63,7 @@ export function useVoiceEntry(): UseVoiceEntryResult {
               throw new Error('We could not confidently understand that entry. Please try again or add it manually.');
             }
             setPendingEntries(validEntries.slice(1));
+            setPendingTotal(validEntries.length);
             setDraftEntry(validEntries[0]);
             setIsConfirmOpen(true);
             setIsProcessing(false);
@@ -107,6 +110,7 @@ export function useVoiceEntry(): UseVoiceEntryResult {
       } else {
         setIsConfirmOpen(false);
         setDraftEntry(null);
+        setPendingTotal(0);
       }
       setIsProcessing(false);
       return true;
@@ -121,18 +125,19 @@ export function useVoiceEntry(): UseVoiceEntryResult {
     setIsConfirmOpen(false);
     setDraftEntry(null);
     setPendingEntries([]);
+    setPendingTotal(0);
   };
 
   const openManualEntry = () => {
-    setTranscriptionText(MOCK_TRANSCRIPTION_TEXT);
-    setDraftEntry(MOCK_DRAFT_ENTRY);
-    setIsConfirmOpen(true);
+    setError(null);
   };
 
   return {
     micState,
     transcriptionText,
     draftEntry,
+    pendingEntryCount: pendingEntries.length,
+    queuePosition: pendingTotal > 1 ? { current: pendingTotal - pendingEntries.length, total: pendingTotal } : null,
     isConfirmOpen,
     error: error || recorderError,
     toggleRecording,

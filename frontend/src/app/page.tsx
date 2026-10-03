@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ManualEntryModal } from '@/components/ManualEntryModal';
 import { Header } from '@/components/Header';
 import { MicButton } from '@/components/MicButton';
 import { CustomerList } from '@/components/CustomerList';
@@ -22,6 +23,7 @@ export default function HisabbApp() {
   const [currentTab, setCurrentTab] = useState<'home' | 'weekly' | 'inventory'>('home');
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isManualEntryOpen, setIsManualEntryOpen] = useState(false);
 
   // SWR real-time data hooks
   const { customers } = useCustomerBalances();
@@ -34,6 +36,7 @@ export default function HisabbApp() {
     micState,
     transcriptionText,
     draftEntry,
+    queuePosition,
     isConfirmOpen,
     error: voiceError,
     toggleRecording,
@@ -48,12 +51,15 @@ export default function HisabbApp() {
   };
 
   const handleSave = async (entry: any) => {
-    await saveEntry(entry);
-    showToast(
-      entry.type === 'credit'
-        ? `₹${entry.amount} credit added for ${entry.customer || 'Customer'}!`
-        : `₹${entry.amount} payment recorded for ${entry.customer || 'Customer'}!`
-    );
+    const saved = await saveEntry(entry);
+    if (saved) {
+      showToast(
+        entry.type === 'credit'
+          ? `₹${entry.amount} credit added for ${entry.customer || 'Customer'}!`
+          : `₹${entry.amount} payment recorded for ${entry.customer || 'Customer'}!`
+      );
+    }
+    return saved;
   };
 
   return (
@@ -96,7 +102,10 @@ export default function HisabbApp() {
             <CustomerList
               customers={customers as any}
               onSelectCustomer={(id) => setSelectedCustomerId(id)}
-              onAddCustomer={openManualEntry}
+              onAddCustomer={() => {
+                openManualEntry();
+                setIsManualEntryOpen(true);
+              }}
             />
 
             {/* Mic Button centered */}
@@ -118,6 +127,13 @@ export default function HisabbApp() {
         transcriptionText={transcriptionText}
         onSave={handleSave}
         onDiscard={discardEntry}
+        queuePosition={queuePosition}
+      />
+
+      <ManualEntryModal
+        isOpen={isManualEntryOpen}
+        onClose={() => setIsManualEntryOpen(false)}
+        onSave={handleSave}
       />
 
       {/* Toast Notification */}
