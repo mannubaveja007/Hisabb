@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Kalam, Mukta } from "next/font/google";
 import "./globals.css";
+
+const mukta = Mukta({ subsets: ["devanagari", "latin"], weight: ["500", "700"], variable: "--font-mukta" });
+const kalam = Kalam({ subsets: ["devanagari", "latin"], weight: ["400", "700"], variable: "--font-kalam" });
 
 export const metadata: Metadata = {
   title: "Hisabb - Voice Credit Ledger",
@@ -26,13 +30,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${mukta.variable} ${kalam.variable} bg-[#FAF8F3]`} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
       </head>
       <body
         suppressHydrationWarning
-        className="min-h-screen bg-[#FAF8F3] text-[#1C1917] antialiased select-none"
+        className="min-h-screen bg-[#FAF8F3] text-[#1C1917] antialiased select-none font-sans"
       >
         {children}
       </body>
