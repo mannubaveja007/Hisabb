@@ -26,7 +26,7 @@ import {
 } from '@/mock/data';
 
 export default function HisabbApp() {
-  // Navigation screen states: 'home' | 'weekly' | 'inventory' | 'customer-detail'
+  // Navigation screen states: 'home' | 'weekly' | 'inventory'
   const [currentTab, setCurrentTab] = useState<'home' | 'weekly' | 'inventory'>('home');
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
 
@@ -45,33 +45,41 @@ export default function HisabbApp() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
+  // Dynamically resolve API URL: port 3000 proxies to 8000; port 8000 uses direct relative paths
+  const getApiUrl = (endpoint: string) => {
+    if (typeof window !== 'undefined' && window.location.port === '3000') {
+      return `http://localhost:8000${endpoint}`;
+    }
+    return endpoint;
+  };
+
   // Fetch real data from backend API if available, else keep mock data
   useEffect(() => {
     async function loadBackendData() {
       try {
-        const [balRes, invRes, sumRes] = await Promise.all([
-          fetch('/api/customers/balances'),
-          fetch('/api/inventory'),
-          fetch('/api/summary/weekly'),
+        const [balRes, invRes, sumRes] = await Promise.allSettled([
+          fetch(getApiUrl('/api/customers/balances')),
+          fetch(getApiUrl('/api/inventory')),
+          fetch(getApiUrl('/api/summary/weekly')),
         ]);
 
-        if (balRes.ok) {
-          const balData = await balRes.json();
+        if (balRes.status === 'fulfilled' && balRes.value.ok) {
+          const balData = await balRes.value.json();
           if (balData.customers && balData.customers.length > 0) {
             setCustomers(balData.customers);
           }
         }
 
-        if (invRes.ok) {
-          const invData = await invRes.json();
+        if (invRes.status === 'fulfilled' && invRes.value.ok) {
+          const invData = await invRes.value.json();
           if (invData.items && invData.items.length > 0) {
             setInventory(invData.items);
           }
         }
 
-        if (sumRes.ok) {
-          const sumData = await sumRes.json();
-          if (Array.isArray(sumData)) {
+        if (sumRes.status === 'fulfilled' && sumRes.value.ok) {
+          const sumData = await sumRes.value.json();
+          if (Array.isArray(sumData) && sumData.length > 0) {
             setWeeklyReminders(sumData);
           }
         }
@@ -119,7 +127,7 @@ export default function HisabbApp() {
           setMicState('recording');
         }
       } catch {
-        // If microphone permission is blocked or non-HTTPS, fallback to interactive simulation
+        // Fallback simulation when mic permission is blocked or non-HTTPS
         setMicState('recording');
       }
     } else if (micState === 'recording') {
@@ -145,14 +153,14 @@ export default function HisabbApp() {
         const formData = new FormData();
         formData.append('file', blob, 'recording.webm');
 
-        const transcribeRes = await fetch('/api/transcribe', {
+        const transcribeRes = await fetch(getApiUrl('/api/transcribe'), {
           method: 'POST',
           body: formData,
         });
 
         if (transcribeRes.ok) {
           const { text } = await transcribeRes.json();
-          const parseRes = await fetch('/api/parse', {
+          const parseRes = await fetch(getApiUrl('/api/parse'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text }),
@@ -173,7 +181,7 @@ export default function HisabbApp() {
       }
     }
 
-    // Default demonstration entry with uncertain match ("Did you mean Sharma Ji?")
+    // Default demonstration entry with uncertain match ("Did you mean Anita Sharma?")
     setDraftEntry(MOCK_DRAFT_ENTRY);
     setIsConfirmOpen(true);
     setMicState('idle');
@@ -183,9 +191,9 @@ export default function HisabbApp() {
   const handleSaveEntry = async (entry: ParsedDraftEntry) => {
     setIsConfirmOpen(false);
 
-    // Call backend API if possible
+    // Call backend API if connected
     try {
-      await fetch('/api/entries', {
+      await fetch(getApiUrl('/api/entries'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -209,7 +217,7 @@ export default function HisabbApp() {
     }
 
     // Update local state reactively
-    const custName = entry.customer || 'अज्ञात ग्राहक';
+    const custName = entry.customer || 'Customer';
     const amount = entry.amount;
     const isCredit = entry.type === 'credit';
 
@@ -250,8 +258,8 @@ export default function HisabbApp() {
 
     showToast(
       isCredit
-        ? `₹${amount} का उधार ${custName} के खाते में दर्ज हुआ!`
-        : `₹${amount} का भुगतान ${custName} के खाते में जमा हुआ!`
+        ? `₹${amount} credit added for ${custName}!`
+        : `₹${amount} payment recorded for ${custName}!`
     );
   };
 
@@ -266,7 +274,7 @@ export default function HisabbApp() {
         customer: {
           id: selectedCustomerId,
           name:
-            customers.find((c) => c.id === selectedCustomerId)?.name || 'ग्राहक',
+            customers.find((c) => c.id === selectedCustomerId)?.name || 'Customer',
           phone:
             customers.find((c) => c.id === selectedCustomerId)?.phone || null,
           balance:
