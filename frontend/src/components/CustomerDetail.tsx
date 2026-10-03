@@ -37,7 +37,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
         className="touch-target inline-flex items-center gap-2 text-stone-700 font-bold mb-4 active:scale-95"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span>Back to Ledger</span>
+        <span>Back to Ledger (वापस)</span>
       </button>
 
       {/* Customer Header Card & Big Balance */}
@@ -51,7 +51,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
 
         <div className="my-5 py-4 border-y border-stone-100 bg-[#FAF8F3]/60 rounded-2xl">
           <span className="text-xs font-black uppercase tracking-wider text-stone-500 block mb-1">
-            Net Outstanding Balance
+            Net Balance · कुल बाकी
           </span>
           <div
             className={`text-4xl font-black font-mono tracking-tight ${
@@ -61,7 +61,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
             ₹{customer.balance.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
           </div>
           <span className="text-xs font-bold text-stone-500 mt-1 block">
-            {hasDebt ? 'Owed to Store' : 'Account Settled'}
+            {hasDebt ? 'Udhaar Baki (Owed to Store)' : 'Hisabb Chukta (Settled)'}
           </span>
         </div>
 
@@ -72,7 +72,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
             className="w-full touch-target bg-[#25D366] hover:bg-[#1fa851] text-stone-950 font-black text-lg py-4 rounded-2xl shadow-md flex items-center justify-center gap-2.5 active:scale-95 transition-all"
           >
             <MessageCircle className="w-6 h-6 fill-current" />
-            <span>Send WhatsApp Reminder</span>
+            <span>Send WhatsApp Reminder (तगादा भेजें)</span>
           </button>
         )}
       </div>
@@ -81,7 +81,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
       <div className="space-y-3">
         <div className="flex items-center gap-2 px-1">
           <Clock className="w-4 h-4 text-stone-500" />
-          <h3 className="text-lg font-black text-[#1C1917]">Transaction Timeline</h3>
+          <h3 className="text-lg font-black text-[#1C1917]">Transaction History (लेन-देन)</h3>
         </div>
 
         {history.map((record) => {
@@ -113,7 +113,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-[#1C1917]">
-                      {isCredit ? 'Credit Taken' : 'Payment Received'}
+                      {isCredit ? 'Udhaar Taken (उधार)' : 'Payment Received (जमा)'}
                     </span>
                     <span className="text-xs text-stone-400 font-medium">{dateStr}</span>
                   </div>

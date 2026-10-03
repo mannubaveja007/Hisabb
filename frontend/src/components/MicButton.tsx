@@ -71,16 +71,16 @@ export const MicButton: React.FC<MicButtonProps> = ({
       <div className="mt-3 text-center">
         <p className="text-base font-bold text-[#1C1917]">
           {state === 'recording'
-            ? 'Listening to speech...'
+            ? 'Listening... (बोलिए, सुन रहे हैं)'
             : state === 'processing'
-            ? 'Preparing ledger entry...'
-            : 'Tap to Speak (Voice Entry)'}
+            ? 'Preparing ledger entry... (सोच रहे हैं)'
+            : 'Tap to Speak (बोलकर हिसाब लिखें)'}
         </p>
         <p className="text-xs text-[#57534E] mt-0.5">
           {subtext ||
             (state === 'idle'
-              ? 'e.g. "Sharma 2kg sugar on credit, 90 rupees" or "Gupta paid 500"'
-              : 'Tap red button when finished')}
+              ? 'e.g. "Sharma Ji 5 kilo chawal udhaar 700 rupaye" or "Gupta paid 500"'
+              : 'Tap red button when finished · रोकें')}
         </p>
       </div>
     </div>
