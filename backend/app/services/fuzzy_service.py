@@ -39,8 +39,8 @@ def match_customer(db: Session, raw_name: Optional[str]) -> Optional[CustomerMat
         else:
             ts_ratio = fuzz.token_sort_ratio(query_name, c_name_lower)
             set_ratio = fuzz.token_set_ratio(query_name, c_name_lower)
-            partial_ratio = fuzz.partial_token_set_ratio(query_name, c_name_lower)
-            calc_score = max((ts_ratio + set_ratio) / 2.0, partial_ratio)
+            calc_score = (ts_ratio + set_ratio) / 2.0
+
 
         if calc_score > best_score:
             best_score = calc_score
