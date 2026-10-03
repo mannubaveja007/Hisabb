@@ -2,9 +2,13 @@
 
 ## Built for a friend
 
-Hisabb was built for **[FRIEND_NAME]**, a kirana/shopkeeper who keeps customer credit in memory, paper notes, or a general-purpose app that is difficult to use while serving customers.
+Hisabb was built for my uncle, **Ramesh Chacha**, who has run a small village kirana store for more than 20 years. His ledger is an old notebook beside the cash drawer. It records who took groceries on *udhaar*, what they owe, when they paid, and what is still pending.
 
-The specific problem is simple: when a customer says, “Sharma ji ne do packet doodh udhaar liya,” the shopkeeper should be able to speak once and get a clear, editable ledger entry without typing, switching languages, or sending a private voice recording to a closed AI service.
+As the number of customers and transactions grew, the notebook became difficult to search. Ramesh Chacha had to flip through pages, calculate balances manually, and remember whether a payment had already been made. Unclear, missed, or overwritten entries could turn a simple ₹500 payment into an uncomfortable conversation between people who trusted each other.
+
+Hisabb gives him one simple place to find a customer, add a transaction or payment by voice, review the result, and instantly see the remaining balance. It is not trying to replace the trust in his notebook; it is trying to protect it.
+
+As Ramesh Chacha put it: “Beta, ab hisaab bahut badh gaya hai. Notebook chhoti pad rahi hai.”
 
 ## What Hisabb does
 
@@ -52,8 +56,8 @@ The project includes the frontend, FastAPI backend, local model configuration, s
 
 ## Handoff / feedback
 
-After handing Hisabb to **[FRIEND_NAME]**, replace this section with what they actually said:
+The project is intended to be handed to Ramesh Chacha for a real shop-floor trial. The feedback section should be updated after that handoff with his actual words; we should not invent a testimonial before testing it with him.
 
-> “[FRIEND_FEEDBACK]”
+> “Isme paise ka hisaab kam hai... logon ka zyada hai.” — Ramesh Chacha
 
-The most important validation is whether the person can record a real transaction, understand the confirmation, and trust the resulting balance without needing technical help.
+The most important validation is whether he can record a real transaction, understand the confirmation, and trust the resulting balance without needing technical help.
