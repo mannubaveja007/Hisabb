@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Package, Bell, RotateCcw } from 'lucide-react';
+import { Package } from 'lucide-react';
 
 interface HeaderProps {
   currentTab: 'home' | 'weekly' | 'inventory';
@@ -27,10 +27,10 @@ export const Header: React.FC<HeaderProps> = ({
                 Hisabb
               </span>
               <span className="text-xs bg-[#1C1917] text-[#FAF8F3] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                दुकान
+                Store
               </span>
             </div>
-            <p className="text-xs text-[#57534E] font-medium">बोल के हिसाब लिखें</p>
+            <p className="text-xs text-[#57534E] font-medium">Voice Credit Ledger</p>
           </button>
         </div>
 
@@ -44,10 +44,10 @@ export const Header: React.FC<HeaderProps> = ({
                 ? 'bg-amber-100 border-amber-300 text-amber-900 shadow-sm animate-pulse'
                 : 'bg-white border-[#E7E5E0] text-[#57534E]'
             }`}
-            title="कम स्टॉक सामान"
+            title="Low Stock Items"
           >
             <Package className="w-4 h-4 text-amber-700" />
-            <span>स्टॉक</span>
+            <span>Stock</span>
             {lowStockCount > 0 && (
               <span className="bg-amber-600 text-white text-xs px-1.5 py-0.5 rounded-full font-black">
                 {lowStockCount}
@@ -64,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'bg-white border-[#E7E5E0] text-[#1C1917]'
             }`}
           >
-            हफ्ता
+            Weekly
           </button>
         </div>
       </div>
