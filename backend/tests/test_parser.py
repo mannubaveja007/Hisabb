@@ -2,16 +2,20 @@ import pytest
 from unittest.mock import patch
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from app.database import Base
 from app.models import Customer
 from app.services.fuzzy_service import match_customer
 from app.services.ollama_service import parse_with_ollama
-from app.schemas import LLMParseResult
 
 # In-memory SQLite for tests
 @pytest.fixture
 def test_db():
-    engine = create_engine("sqlite:///:memory:")
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
     Base.metadata.create_all(bind=engine)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = TestingSessionLocal()
@@ -27,23 +31,25 @@ def test_db():
     db.close()
 
 def test_fuzzy_match_exact_and_honorific(test_db):
-    # Ramesh Kumar exact or with honorific
+    # Ramesh Kumar with honorific "Ramesh ji"
     match = match_customer(test_db, "Ramesh ji")
     assert match is not None
     assert match.name == "Ramesh Kumar"
     assert match.score >= 0.70
 
 def test_fuzzy_match_high_confidence_auto(test_db):
-    # High match >= 85%
+    # Exact full match >= 85%
     match = match_customer(test_db, "Ramesh Kumar")
     assert match is not None
     assert match.score >= 0.85
+    assert match.score == 1.0
 
 def test_fuzzy_match_medium_confirmation(test_db):
-    # Match with slight typo / partial name: "Ramesh" (70 - 85)
+    # Match with single name "Ramesh" (falls between 70% and 85%)
     match = match_customer(test_db, "Ramesh")
     assert match is not None
-    assert 0.70 <= match.score <= 1.0
+    assert match.name == "Ramesh Kumar"
+    assert 0.70 <= match.score <= 0.85
 
 def test_fuzzy_match_new_customer(test_db):
     # Completely unfamiliar customer name should return None (< 70 threshold)

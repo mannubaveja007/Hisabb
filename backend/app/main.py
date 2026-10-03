@@ -45,12 +45,13 @@ def health_check():
 
 # Resolve frontend static export path (frontend/out)
 potential_paths = [
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/out")),
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../frontend/out")),
     os.path.abspath(os.path.join(os.getcwd(), "frontend/out")),
     os.path.abspath(os.path.join(os.getcwd(), "../frontend/out")),
 ]
 
 frontend_out_dir = next((p for p in potential_paths if os.path.isdir(p)), None)
+
 
 if frontend_out_dir:
     app.mount("/", StaticFiles(directory=frontend_out_dir, html=True), name="frontend_static")

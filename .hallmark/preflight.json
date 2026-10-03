@@ -1,0 +1,17 @@
+{
+  "scanned_at": "2026-10-03T11:45:00Z",
+  "framework": "Next.js 16 (App Router) + FastAPI (single-process static export)",
+  "package_manager": "pnpm",
+  "styling": "Tailwind CSS v4",
+  "font_stack": "Geist Sans, Arial fallback, system-ui (min 18px)",
+  "palette": {
+    "background": "#FAF8F3",
+    "paper": "#FFFFFF",
+    "foreground": "#1C1917",
+    "accent_red": "#DC2626",
+    "accent_green": "#15803D",
+    "whatsapp_green": "#25D366"
+  },
+  "genre": "editorial",
+  "theme": "Almanac (Warm Neutral Shopkeeper)"
+}

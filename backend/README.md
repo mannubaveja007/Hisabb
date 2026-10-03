@@ -1,84 +1,37 @@
-# Hisabb Backend
+# Hisabb Backend & Static Server
 
-Local-first, voice-driven credit ledger for small retail shops and Kiranas in India.
+Local-first, voice-driven credit ledger for Indian Kirana & Retail stores.
 
-## Tech Stack
-- **FastAPI** (Python 3.10+)
-- **faster-whisper** (`base`, CPU, `int8` quantization)
-- **Ollama** (`qwen2.5:3b`)
-- **SQLite** via **SQLAlchemy**
-- **RapidFuzz** (Fuzzy customer matching)
-- **Pytest** & **HTTPX** (Testing)
+Serves the Next.js static PWA export at `/` and backend API endpoints under `/api`.
 
----
+## Endpoints
+- `POST /api/transcribe`: Ingests audio files via `faster-whisper` (base, int8 on CPU)
+- `POST /api/parse`: Extracts structured ledger entries using Ollama (`qwen2.5:3b`) with fuzzy customer resolution
+- `POST /api/entries`: Confirms and commits ledger entries to SQLite
+- `GET /api/customers/balances`: Retrieves all customer credit/payment balances computed directly in SQL
+- `GET /api/customers/{id}/history`: Gets customer detail and chronological transaction ledger
+- `GET /api/inventory`: Lists inventory items with `low_stock` boolean flag
+- `GET /api/summary/weekly`: Outstanding balances with pre-encoded WhatsApp deep links
 
-## Prerequisites
-1. **Python 3.10+** installed
-2. **Ollama** installed and running:
-   ```bash
-   ollama pull qwen2.5:3b
-   ollama serve
-   ```
+## Running with HTTPS for Phone Microphone Access (mkcert)
 
----
-
-## Setup & Installation
+Browsers require HTTPS for microphone permissions on remote mobile devices:
 
 ```bash
-cd backend
+# 1. Install mkcert
+brew install mkcert
+mkcert -install
 
-# 1. Create and activate a virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# 2. Generate local certificates (substitute your Wi-Fi LAN IP)
+mkcert localhost 127.0.0.1 192.168.1.15
 
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Seed database with 10 fake customers & sample inventory
-python seed.py
+# 3. Launch uvicorn with SSL
+uvicorn app.main:app --host 0.0.0.0 --port 8000 \
+  --ssl-keyfile localhost+2-key.pem \
+  --ssl-certfile localhost+2.pem
 ```
 
----
-
-## Running the Application
-
+## Running Tests
 ```bash
-# Start FastAPI backend server on port 8000
-uvicorn app.main:app --reload --port 8000
+pytest -p no:anchorpy tests/ -v
 ```
-
-- **Swagger / OpenAPI Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Interactive ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
-- **Health Check**: [http://localhost:8000/health](http://localhost:8000/health)
-
----
-
-## Running Automated Tests
-
-Run the full pytest suite:
-
-```bash
-pytest tests/ -v
-```
-
-This verifies:
-1. Deterministic balance computation directly in SQL ($\sum \text{credit} - \sum \text{payment}$).
-2. Fuzzy matching thresholds (85% auto, 70-85% confirmation, <70% new customer).
-3. LLM parsing validation, few-shot prompt parsing, and 1-attempt retry with zero-confidence fallback.
-4. Inventory stock tracking and `low_stock` boolean flag.
-5. WhatsApp deep link generation with URL-encoded polite Hinglish reminder templates.
-
----
-
-## Environment Variables (Optional)
-
-Override defaults via `.env` or system environment:
-
-| Variable | Default | Description |
-|---|---|---|
-| `DATABASE_URL` | `sqlite:///./hisabb.db` | SQLite database URI |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama service endpoint |
-| `OLLAMA_MODEL` | `qwen2.5:3b` | Local LLM model tag |
-| `WHISPER_MODEL_SIZE` | `base` | faster-whisper model size |
-| `WHISPER_DEVICE` | `cpu` | Whisper compute device |
-| `WHISPER_COMPUTE_TYPE`| `int8` | Quantization type |

@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 from app.main import app
 from app.database import Base, get_db
@@ -8,16 +9,22 @@ from app.models import Customer, Item, Entry
 
 @pytest.fixture
 def client_and_db():
-    engine = create_engine("sqlite:///:memory:")
+    # Using StaticPool and check_same_thread=False ensures in-memory SQLite tables persist across TestClient threads
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
     Base.metadata.create_all(bind=engine)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = TestingSessionLocal()
 
     def override_get_db():
+        session = TestingSessionLocal()
         try:
-            yield db
+            yield session
         finally:
-            pass
+            session.close()
 
     app.dependency_overrides[get_db] = override_get_db
     client = TestClient(app)
