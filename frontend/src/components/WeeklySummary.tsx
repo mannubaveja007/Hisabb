@@ -23,22 +23,22 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
         className="touch-target inline-flex items-center gap-2 text-stone-700 font-bold mb-3 active:scale-95"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span>वापस (Back)</span>
+        <span>Back to Ledger</span>
       </button>
 
       {/* Header Banner */}
       <div className="bg-[#1C1917] text-white rounded-3xl p-6 shadow-md mb-6">
         <div className="flex items-center gap-2.5 text-stone-300 text-xs font-bold uppercase tracking-wider mb-1">
           <CalendarCheck className="w-4 h-4 text-emerald-400" />
-          <span>हफ्ते का तगादा (Weekly Reminders)</span>
+          <span>Weekly Credit Summary</span>
         </div>
-        <h2 className="text-2xl font-black">कुल बकाया उधार</h2>
+        <h2 className="text-2xl font-black">Total Outstanding</h2>
         <div className="mt-3 flex items-baseline justify-between">
           <span className="text-3xl font-black font-mono text-emerald-400">
             ₹{totalPending.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
           </span>
           <span className="text-sm text-stone-300 font-medium">
-            {items.length} ग्राहकों से बाकी
+            {items.length} pending debtors
           </span>
         </div>
       </div>
@@ -66,7 +66,7 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
                   ₹{item.balance.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
                 </span>
                 <span className="text-[11px] font-bold text-red-700 uppercase tracking-wide">
-                  बाकी रकम
+                  Pending Balance
                 </span>
               </div>
             </div>
@@ -84,15 +84,15 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
               className="touch-target w-full bg-[#25D366] hover:bg-[#1fa851] text-stone-950 font-black text-base py-3.5 rounded-2xl flex items-center justify-center gap-2 active:scale-95 shadow-sm transition-all text-center"
             >
               <MessageCircle className="w-5 h-5 fill-current" />
-              <span>व्हाट्सएप पर तगादा भेजें</span>
+              <span>Send WhatsApp Reminder</span>
             </a>
           </div>
         ))}
 
         {items.length === 0 && (
           <div className="bg-white border border-stone-200 p-8 text-center rounded-3xl text-stone-500">
-            <p className="text-lg font-bold text-[#1C1917]">कोई बकाया नहीं है</p>
-            <p className="text-sm text-stone-500 mt-1">सभी ग्राहकों का हिसाब साफ है!</p>
+            <p className="text-lg font-bold text-[#1C1917]">All accounts settled</p>
+            <p className="text-sm text-stone-500 mt-1">No customers currently owe money!</p>
           </div>
         )}
       </div>

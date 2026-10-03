@@ -23,15 +23,15 @@ export const InventoryList: React.FC<InventoryListProps> = ({
         className="touch-target inline-flex items-center gap-2 text-stone-700 font-bold mb-3 active:scale-95"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span>वापस (Back)</span>
+        <span>Back to Ledger</span>
       </button>
 
       {/* Header */}
       <div className="flex items-center justify-between mb-4 px-1">
         <div>
-          <h2 className="text-2xl font-black text-[#1C1917]">दुकान का सामान (Stock)</h2>
+          <h2 className="text-2xl font-black text-[#1C1917]">Store Inventory</h2>
           <p className="text-xs text-stone-500 font-semibold">
-            कुल {items.length} आइटम · {lowStockItems.length} में कम स्टॉक
+            {items.length} items cataloged · {lowStockItems.length} low stock
           </p>
         </div>
       </div>
@@ -61,18 +61,18 @@ export const InventoryList: React.FC<InventoryListProps> = ({
                   <h3 className="text-lg font-black text-[#1C1917]">{item.name}</h3>
                   <div className="flex items-center gap-2 mt-0.5">
                     {isLow ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-850 bg-amber-200/70 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-900 bg-amber-200/70 px-2 py-0.5 rounded-full">
                         <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
-                        कम स्टॉक (मंगवाना है)
+                        Low Stock (Reorder)
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-green-800 bg-green-100 px-2 py-0.5 rounded-full">
                         <CheckCircle2 className="w-3.5 h-3.5 text-green-700" />
-                        पर्याप्त स्टॉक
+                        In Stock
                       </span>
                     )}
                     <span className="text-xs text-stone-400">
-                      न्यूनतम: {item.min_stock_threshold} {item.unit}
+                      Min: {item.min_stock_threshold} {item.unit}
                     </span>
                   </div>
                 </div>
@@ -97,7 +97,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
 
         {items.length === 0 && (
           <div className="bg-white border border-stone-200 p-8 text-center rounded-2xl text-stone-500">
-            सामान की सूची खाली है
+            Inventory catalog is empty
           </div>
         )}
       </div>

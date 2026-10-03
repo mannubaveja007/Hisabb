@@ -36,31 +36,31 @@ export const MicButton: React.FC<MicButtonProps> = ({
           }`}
           aria-label={
             state === 'recording'
-              ? 'रोकें (Stop Recording)'
+              ? 'Stop Recording'
               : state === 'processing'
-              ? 'प्रोसेसिंग (Processing)'
-              : 'बोलें (Tap to Record)'
+              ? 'Processing'
+              : 'Tap to Record'
           }
         >
           {state === 'recording' ? (
             <>
               <Square className="w-10 h-10 fill-current text-white animate-pulse" />
               <span className="text-xs font-bold mt-1 uppercase tracking-wider">
-                रोकें
+                Stop
               </span>
             </>
           ) : state === 'processing' ? (
             <>
               <Loader2 className="w-10 h-10 animate-spin text-white" />
               <span className="text-xs font-bold mt-1 tracking-wider">
-                समझ रहे हैं...
+                Thinking...
               </span>
             </>
           ) : (
             <>
               <Mic className="w-12 h-12 text-white" />
               <span className="text-xs font-bold mt-1 tracking-wider uppercase">
-                बोलें
+                Speak
               </span>
             </>
           )}
@@ -71,16 +71,16 @@ export const MicButton: React.FC<MicButtonProps> = ({
       <div className="mt-3 text-center">
         <p className="text-base font-bold text-[#1C1917]">
           {state === 'recording'
-            ? 'बोलिए... (Listening)'
+            ? 'Listening to speech...'
             : state === 'processing'
-            ? 'हिसाब तैयार हो रहा है...'
-            : 'दबाकर बोलें (Tap & Speak)'}
+            ? 'Preparing ledger entry...'
+            : 'Tap to Speak (Voice Entry)'}
         </p>
         <p className="text-xs text-[#57534E] mt-0.5">
           {subtext ||
             (state === 'idle'
-              ? '"शर्मा जी 2 किलो चीनी उधार" या "गुप्ता 500 दिए"'
-              : 'पूरा होने पर लाल बटन दबाएं')}
+              ? 'e.g. "Sharma 2kg sugar on credit, 90 rupees" or "Gupta paid 500"'
+              : 'Tap red button when finished')}
         </p>
       </div>
     </div>

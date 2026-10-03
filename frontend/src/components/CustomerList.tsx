@@ -21,14 +21,14 @@ export const CustomerList: React.FC<CustomerListProps> = ({
       <div className="flex items-baseline justify-between mb-3 px-1">
         <div>
           <h2 className="text-xl font-black text-[#1C1917] tracking-tight">
-            किसका कितना बाकी
+            Who Owes What
           </h2>
           <p className="text-xs text-[#57534E] font-semibold">
-            Who owes what ({customers.length} ग्राहक)
+            Credit Ledger ({customers.length} customers)
           </p>
         </div>
         <div className="text-right">
-          <span className="text-xs font-bold text-[#57534E] uppercase">कुल बाकी</span>
+          <span className="text-xs font-bold text-[#57534E] uppercase">Total Pending</span>
           <div className="text-lg font-black text-[#DC2626] font-mono">
             ₹{totalPending.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
           </div>
@@ -58,10 +58,10 @@ export const CustomerList: React.FC<CustomerListProps> = ({
                 </div>
                 <div className="flex items-center gap-3 mt-1 text-xs text-[#57534E] font-medium">
                   <span className="flex items-center gap-0.5">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-red-600" /> उधार: ₹{c.total_credit}
+                    <ArrowUpRight className="w-3.5 h-3.5 text-red-600" /> Credit: ₹{c.total_credit}
                   </span>
                   <span className="flex items-center gap-0.5">
-                    <ArrowDownLeft className="w-3.5 h-3.5 text-green-600" /> जमा: ₹{c.total_paid}
+                    <ArrowDownLeft className="w-3.5 h-3.5 text-green-600" /> Paid: ₹{c.total_paid}
                   </span>
                 </div>
               </div>
@@ -81,7 +81,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
                       hasDebt ? 'text-red-700' : 'text-stone-400'
                     }`}
                   >
-                    {hasDebt ? 'बाकी है' : 'हिसाब साफ'}
+                    {hasDebt ? 'Owes Money' : 'Settled'}
                   </span>
                 </div>
                 <ChevronRight className="w-5 h-5 text-stone-400 group-hover:text-stone-900 transition-colors" />
@@ -92,8 +92,8 @@ export const CustomerList: React.FC<CustomerListProps> = ({
 
         {customers.length === 0 && (
           <div className="bg-white border border-[#E7E5E0] p-8 text-center rounded-2xl">
-            <p className="text-lg font-bold text-[#1C1917]">कोई हिसाब नहीं मिला</p>
-            <p className="text-sm text-[#57534E] mt-1">ऊपर माइक बटन दबाकर नया उधार जोड़ें</p>
+            <p className="text-lg font-bold text-[#1C1917]">No customers found</p>
+            <p className="text-sm text-[#57534E] mt-1">Tap the mic button above to record credit</p>
           </div>
         )}
       </div>

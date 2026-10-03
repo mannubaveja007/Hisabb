@@ -18,9 +18,9 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
   const hasDebt = customer.balance > 0;
 
   const handleWhatsAppReminder = () => {
-    const text = `Namaste ${customer.name} ji, aapka dukaan ka kul baaki hisaab ₹${customer.balance.toFixed(
+    const text = `Hello ${customer.name}, your outstanding store credit balance is ₹${customer.balance.toFixed(
       2
-    )} hai. Kripya samay par bhuqtan karein. Dhanyawad!`;
+    )}. Please arrange payment when convenient. Thank you!`;
     const cleanPhone = customer.phone ? customer.phone.replace(/\D/g, '') : '';
     const phoneParam = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
     const url = phoneParam
@@ -37,7 +37,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
         className="touch-target inline-flex items-center gap-2 text-stone-700 font-bold mb-4 active:scale-95"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span>वापस (Back)</span>
+        <span>Back to Ledger</span>
       </button>
 
       {/* Customer Header Card & Big Balance */}
@@ -51,7 +51,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
 
         <div className="my-5 py-4 border-y border-stone-100 bg-[#FAF8F3]/60 rounded-2xl">
           <span className="text-xs font-black uppercase tracking-wider text-stone-500 block mb-1">
-            कुल बाकी उधार (Net Outstanding)
+            Net Outstanding Balance
           </span>
           <div
             className={`text-4xl font-black font-mono tracking-tight ${
@@ -61,7 +61,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
             ₹{customer.balance.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
           </div>
           <span className="text-xs font-bold text-stone-500 mt-1 block">
-            {hasDebt ? 'दुकानदार को लेना है' : 'हिसाब चुकता'}
+            {hasDebt ? 'Owed to Store' : 'Account Settled'}
           </span>
         </div>
 
@@ -72,7 +72,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
             className="w-full touch-target bg-[#25D366] hover:bg-[#1fa851] text-stone-950 font-black text-lg py-4 rounded-2xl shadow-md flex items-center justify-center gap-2.5 active:scale-95 transition-all"
           >
             <MessageCircle className="w-6 h-6 fill-current" />
-            <span>तगादा भेजें (Send Reminder)</span>
+            <span>Send WhatsApp Reminder</span>
           </button>
         )}
       </div>
@@ -81,12 +81,12 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
       <div className="space-y-3">
         <div className="flex items-center gap-2 px-1">
           <Clock className="w-4 h-4 text-stone-500" />
-          <h3 className="text-lg font-black text-[#1C1917]">लेन-देन का इतिहास (Timeline)</h3>
+          <h3 className="text-lg font-black text-[#1C1917]">Transaction Timeline</h3>
         </div>
 
         {history.map((record) => {
           const isCredit = record.type === 'credit';
-          const dateStr = new Date(record.created_at).toLocaleDateString('hi-IN', {
+          const dateStr = new Date(record.created_at).toLocaleDateString('en-IN', {
             day: 'numeric',
             month: 'short',
             hour: '2-digit',
@@ -113,7 +113,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-[#1C1917]">
-                      {isCredit ? 'उधार लिया' : 'पैसे जमा किए'}
+                      {isCredit ? 'Credit Taken' : 'Payment Received'}
                     </span>
                     <span className="text-xs text-stone-400 font-medium">{dateStr}</span>
                   </div>
@@ -144,7 +144,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
 
         {history.length === 0 && (
           <div className="bg-white border border-stone-200 p-6 text-center rounded-2xl text-stone-500">
-            कोई लेन-देन दर्ज नहीं है
+            No transactions on record
           </div>
         )}
       </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ParsedDraftEntry, EntryType } from '@/types/hisabb';
+import { ParsedDraftEntry } from '@/types/hisabb';
 import { Check, X, Edit3, AlertCircle, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 
 interface ConfirmSheetProps {
@@ -56,12 +56,12 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
 
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-black text-[#1C1917]">
-            पुष्टि करें (Confirm Entry)
+            Confirm Entry
           </h3>
           <button
             onClick={onDiscard}
             className="text-stone-500 hover:text-stone-900 p-2 touch-target"
-            aria-label="रद्द करें (Discard)"
+            aria-label="Discard"
           >
             <X className="w-6 h-6" />
           </button>
@@ -74,23 +74,23 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
               <AlertCircle className="w-6 h-6 text-amber-700 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-base font-bold text-amber-950">
-                  क्या आपका मतलब &quot;{currentEntry.customer_match?.name}&quot; है?
+                  Did you mean &quot;{currentEntry.customer_match?.name}&quot;?
                 </p>
                 <p className="text-xs text-amber-800 mt-0.5">
-                  Did you mean {currentEntry.customer_match?.name}?
+                  Fuzzy match confidence: {Math.round((currentEntry.customer_match?.score || 0) * 100)}%
                 </p>
                 <div className="flex items-center gap-3 mt-3">
                   <button
                     onClick={() => handleMatchResolution(true)}
                     className="touch-target px-4 py-2 bg-amber-700 text-white font-bold rounded-xl text-sm flex items-center gap-1.5 active:scale-95 shadow-sm"
                   >
-                    <Check className="w-4 h-4" /> हाँ (Yes)
+                    <Check className="w-4 h-4" /> Yes
                   </button>
                   <button
                     onClick={() => handleMatchResolution(false)}
                     className="touch-target px-4 py-2 bg-white border border-amber-300 text-amber-900 font-bold rounded-xl text-sm active:scale-95"
                   >
-                    नहीं, नया ग्राहक है
+                    No, New Customer
                   </button>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
           <div className="flex items-start justify-between gap-3">
             <div>
               <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block">
-                ग्राहक (Customer)
+                Customer
               </span>
               {isEditing ? (
                 <input
@@ -117,7 +117,7 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
                 />
               ) : (
                 <span className="text-2xl font-black text-[#1C1917]">
-                  {currentEntry.customer || 'अज्ञात ग्राहक (Unknown)'}
+                  {currentEntry.customer || 'Unknown Customer'}
                 </span>
               )}
             </div>
@@ -133,12 +133,12 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
               {isCredit ? (
                 <>
                   <ArrowUpRight className="w-4 h-4 text-red-700" />
-                  <span>उधार (Credit)</span>
+                  <span>Credit</span>
                 </>
               ) : (
                 <>
                   <ArrowDownLeft className="w-4 h-4 text-green-700" />
-                  <span>जमा (Payment)</span>
+                  <span>Payment</span>
                 </>
               )}
             </div>
@@ -146,7 +146,7 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
 
           {/* Amount (Big & Bold) */}
           <div className="pt-2 border-t border-stone-100 flex items-baseline justify-between">
-            <span className="text-sm font-bold text-stone-600">राशि (Amount):</span>
+            <span className="text-sm font-bold text-stone-600">Amount:</span>
             {isEditing ? (
               <div className="flex items-center gap-1">
                 <span className="text-xl font-bold">₹</span>
@@ -177,12 +177,12 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
           {(currentEntry.item || currentEntry.qty || isEditing) && (
             <div className="pt-2 border-t border-stone-100 grid grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-xs font-semibold text-stone-500 block">सामान (Item)</span>
+                <span className="text-xs font-semibold text-stone-500 block">Item</span>
                 {isEditing ? (
                   <input
                     type="text"
                     value={currentEntry.item || ''}
-                    placeholder="सामान का नाम"
+                    placeholder="Item name"
                     onChange={(e) =>
                       setCurrentEntry({ ...currentEntry, item: e.target.value })
                     }
@@ -195,7 +195,7 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
                 )}
               </div>
               <div>
-                <span className="text-xs font-semibold text-stone-500 block">मात्रा (Qty)</span>
+                <span className="text-xs font-semibold text-stone-500 block">Quantity</span>
                 {isEditing ? (
                   <div className="flex gap-1">
                     <input
@@ -237,7 +237,7 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
             className="w-full touch-target bg-[#15803D] hover:bg-green-800 text-white font-black text-xl py-4 rounded-2xl shadow-lg shadow-green-700/30 flex items-center justify-center gap-2 active:scale-95 transition-all"
           >
             <Check className="w-6 h-6 stroke-[3]" />
-            <span>खाते में जोड़ें (Save Entry)</span>
+            <span>Save to Ledger</span>
           </button>
 
           <div className="grid grid-cols-2 gap-3">
@@ -246,14 +246,14 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
               className="touch-target bg-white border-2 border-stone-300 text-stone-800 font-bold text-base py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95"
             >
               <Edit3 className="w-4 h-4" />
-              <span>{isEditing ? 'बदलाव पूरा' : 'सुधारें (Edit)'}</span>
+              <span>{isEditing ? 'Done' : 'Edit'}</span>
             </button>
             <button
               onClick={onDiscard}
               className="touch-target bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold text-base py-3 rounded-xl flex items-center justify-center gap-2 active:scale-95"
             >
               <X className="w-4 h-4" />
-              <span>रद्द करें (Discard)</span>
+              <span>Discard</span>
             </button>
           </div>
         </div>
