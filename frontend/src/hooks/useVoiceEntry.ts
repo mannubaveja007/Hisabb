@@ -25,6 +25,7 @@ export function useVoiceEntry(): UseVoiceEntryResult {
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcriptionText, setTranscriptionText] = useState<string>('');
   const [draftEntry, setDraftEntry] = useState<ParsedDraftEntry | null>(null);
+  const [pendingEntries, setPendingEntries] = useState<ParsedDraftEntry[]>([]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,26 +56,35 @@ export function useVoiceEntry(): UseVoiceEntryResult {
           // 2. Parse text with Ollama
           const parseRes = await api.parse(text);
           if (parseRes.entries && parseRes.entries.length > 0) {
-            setDraftEntry(parseRes.entries[0]);
+            const validEntries = parseRes.entries.filter((entry) => entry.confidence > 0);
+            if (validEntries.length === 0) {
+              throw new Error('We could not confidently understand that entry. Please try again or add it manually.');
+            }
+            setPendingEntries(validEntries.slice(1));
+            setDraftEntry(validEntries[0]);
             setIsConfirmOpen(true);
             setIsProcessing(false);
             return;
           }
+          throw new Error('No ledger entry was found in that recording. Please try again.');
         } catch (apiErr: any) {
-          // If backend isn't reachable or fails, fallback to interactive mock demonstration
-          console.warn('API error during voice processing, falling back to mock flow:', apiErr);
+          setError(apiErr instanceof Error ? apiErr.message : 'Voice entry processing failed. Please try again.');
         }
+      } else {
+        setError('No audio was recorded. Please try again.');
       }
 
-      // Fallback demonstration
-      setTranscriptionText(MOCK_TRANSCRIPTION_TEXT);
-      setDraftEntry(MOCK_DRAFT_ENTRY);
-      setIsConfirmOpen(true);
       setIsProcessing(false);
     }
   };
 
   const saveEntry = async (entry: ParsedDraftEntry): Promise<boolean> => {
+    const requiresCustomer = entry.type === 'credit' || entry.type === 'payment';
+    if (entry.confidence <= 0 || (requiresCustomer && !entry.customer?.trim()) || (requiresCustomer && entry.amount <= 0)) {
+      setError('Please confirm a customer and a valid amount before saving.');
+      return false;
+    }
+
     setIsProcessing(true);
     try {
       const payload: EntryInput = {
@@ -90,21 +100,27 @@ export function useVoiceEntry(): UseVoiceEntryResult {
       };
 
       await api.createEntries([payload]);
-    } catch (saveErr) {
-      console.warn('Failed to commit to API, saving in optimistic state:', saveErr);
-    } finally {
-      // Revalidate all ledger and inventory data
       await revalidateAllData();
-      setIsConfirmOpen(false);
-      setDraftEntry(null);
+      if (pendingEntries.length > 0) {
+        setDraftEntry(pendingEntries[0]);
+        setPendingEntries((entries) => entries.slice(1));
+      } else {
+        setIsConfirmOpen(false);
+        setDraftEntry(null);
+      }
       setIsProcessing(false);
+      return true;
+    } catch (saveErr) {
+      setError(saveErr instanceof Error ? saveErr.message : 'Could not save this entry. Please try again.');
+      setIsProcessing(false);
+      return false;
     }
-    return true;
   };
 
   const discardEntry = () => {
     setIsConfirmOpen(false);
     setDraftEntry(null);
+    setPendingEntries([]);
   };
 
   const openManualEntry = () => {

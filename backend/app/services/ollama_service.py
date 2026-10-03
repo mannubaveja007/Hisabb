@@ -21,6 +21,9 @@ Guidelines:
 2. Amount must be a positive number. If no amount is explicitly said for payment/credit, estimate or 0.0.
 3. Clean honorifics like "ji", "bhai", "sahab", "uncle" from the customer field if appropriate, but keep the core name intact.
 4. Extract item, qty, unit if mentioned (e.g., 'packet', 'kilo', 'kg', 'ltr', 'bag', 'peti').
+5. Convert number words in Hindi/Hinglish to numbers: ek=1, do=2, teen=3, chaar=4, paanch=5, sau=100, dedh=150, dhai=250, hazaar=1000.
+6. Interpret "X ko/de diye/jama kiye" as a payment when money is mentioned. Interpret "X ne ... liya/udhaar/baaki" as credit. Never invent an amount: use 0.0 and confidence below 0.5 when it is not spoken.
+7. Preserve Devanagari customer names and return one entry for every distinct customer/action in the utterance.
 
 Few-Shot Examples:
 User: "Sharma ji ne 2 kilo cheeni li, 90 rupaye baaki"
@@ -137,16 +140,5 @@ def parse_with_ollama(text: str) -> List[LLMEntryExtraction]:
             validated = LLMParseResult(**data)
             return validated.entries
         except Exception as e2:
-            logger.error(f"Ollama extraction failed on retry: {e2}. Returning fallback with confidence 0.")
-            # Fallback: raw text with confidence 0
-            return [
-                LLMEntryExtraction(
-                    customer=None,
-                    type="credit",
-                    item=text,
-                    qty=None,
-                    unit=None,
-                    amount=0.0,
-                    confidence=0.0
-                )
-            ]
+            logger.error(f"Ollama extraction failed on retry: {e2}. Returning no entries.")
+            return []
