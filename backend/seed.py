@@ -112,12 +112,16 @@ def seed():
     db.close()
 
 def seed_if_empty():
-    """Create the demo ledger only for a brand-new empty database."""
+    """Create demo data only when the database has no customers."""
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        if db.query(Customer).first() is None:
-            seed()
+        if db.query(Customer).first() is not None:
+            print("Database already contains customers; keeping existing data.")
+            return False
+        seed()
+        print("Empty database detected; demo data seeded.")
+        return True
     finally:
         db.close()
 
