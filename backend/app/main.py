@@ -10,7 +10,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.config import settings
-from app.database import engine, Base
+from app.database import engine, Base, SessionLocal
+from app.models import Customer, Item, Entry
 from seed import seed_if_empty
 from app.routes import (
     transcribe,
@@ -50,7 +51,19 @@ app.include_router(summary.router)
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "app": settings.PROJECT_NAME}
+    db = SessionLocal()
+    try:
+        return {
+            "status": "ok",
+            "app": settings.PROJECT_NAME,
+            "database": {
+                "customers": db.query(Customer).count(),
+                "items": db.query(Item).count(),
+                "entries": db.query(Entry).count(),
+            },
+        }
+    finally:
+        db.close()
 
 # Resolve frontend static export path (frontend/out)
 potential_paths = [
