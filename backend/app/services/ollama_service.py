@@ -112,8 +112,13 @@ Output:
 
 def call_ollama(text: str) -> dict:
     url = f"{settings.OLLAMA_BASE_URL.rstrip('/')}/api/generate"
+    model_name = settings.OLLAMA_MODEL
+    headers = {}
+    if settings.OLLAMA_API_KEY:
+        headers["Authorization"] = f"Bearer {settings.OLLAMA_API_KEY}"
+
     payload = {
-        "model": settings.OLLAMA_MODEL,
+        "model": model_name,
         "system": SYSTEM_PROMPT,
         "prompt": text,
         "stream": False,
@@ -122,14 +127,22 @@ def call_ollama(text: str) -> dict:
             "temperature": 0.1
         }
     }
-    headers = {}
-    if settings.OLLAMA_API_KEY:
-        headers["Authorization"] = f"Bearer {settings.OLLAMA_API_KEY}"
 
-    response = requests.post(url, json=payload, headers=headers, timeout=(3, 8))
-    response.raise_for_status()
-    raw_response = response.json().get("response", "{}")
-    return json.loads(raw_response)
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=(3, 8))
+        if response.status_code == 404:
+            # Model not found; check if any model is available on Ollama instance
+            tags_resp = requests.get(f"{settings.OLLAMA_BASE_URL.rstrip('/')}/api/tags", headers=headers, timeout=2)
+            if tags_resp.status_code == 200:
+                models = [m.get("name") for m in tags_resp.json().get("models", []) if m.get("name")]
+                if models and models[0] != model_name:
+                    payload["model"] = models[0]
+                    response = requests.post(url, json=payload, headers=headers, timeout=(3, 8))
+        response.raise_for_status()
+        raw_response = response.json().get("response", "{}")
+        return json.loads(raw_response)
+    except Exception:
+        raise
 
 def parse_with_ollama(text: str) -> List[LLMEntryExtraction]:
     local_entries = parse_simple_entry(text)

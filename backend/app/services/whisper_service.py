@@ -31,7 +31,7 @@ class WhisperService:
                 language=settings.WHISPER_LANGUAGE or None,
                 task="transcribe",
                 condition_on_previous_text=True,
-                initial_prompt="किराना दुकान का हिसाब। शर्मा जी, अनीता, गुप्ता, उधार, जमा, बाकी, रुपये, किलो, पैकेट। Hindi and Hinglish customer names and amounts."
+                initial_prompt="किराना दुकान का खाता हिसाब। शर्मा जी, रमेश कुमार, अनीता देवी, गुप्ता, 500 रुपये, 200, 100, 50, पाँच सौ, दो सौ, उधार, जमा, बाकी, किलो, पैकेट। Ramesh Kumar udhar 500 panch sau."
             )
             full_text = " ".join([segment.text.strip() for segment in segments]).strip()
             detected_lang = info.language if info and info.language else "hi"

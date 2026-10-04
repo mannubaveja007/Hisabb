@@ -13,7 +13,7 @@ _NUMBERS = {
     "panch": 5, "saat": 7, "das": 10,
     "डेढ़": 1.5, "डेढ़": 1.5, "dedh": 1.5, "ढाई": 2.5, "dhai": 2.5,
 }
-_SCALES = {"सौ": 100, "sau": 100, "हजार": 1000, "हज़ार": 1000, "hazaar": 1000}
+_SCALES = {"सौ": 100, "sau": 100, "soo": 100, "so": 100, "हजार": 1000, "हज़ार": 1000, "hazaar": 1000, "hazar": 1000}
 _WORD = "(?:" + "|".join(sorted(map(re.escape, _NUMBERS), key=len, reverse=True)) + ")"
 _SCALE = "(?:" + "|".join(_SCALES) + ")"
 _BASE = rf"(?:\d+(?:\.\d+)?|{_WORD})"
@@ -51,6 +51,7 @@ def _number(value: str) -> Optional[float]:
 def parse_simple_entry(text: str) -> List[LLMEntryExtraction]:
     """Extract a single reviewable draft; leave complex commands to the model."""
     cleaned = unicodedata.normalize("NFC", text).lower()
+    cleaned = re.sub(r"\b(\d+)(?:st|nd|rd|th)\b", r"\1", cleaned)
     cleaned = re.sub(r"[,।!?]|\.(?!\d)", " ", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
     if not cleaned or re.search(r"(?:^|\s)(?:aur|और|and|te)(?:\s|$)|[;\n]", text.lower()):
@@ -70,7 +71,7 @@ def parse_simple_entry(text: str) -> List[LLMEntryExtraction]:
     quantity = quantities[0] if quantities else None
     amount_match = amounts[0] if amounts else None
     # Multiple unlabelled numbers must not silently become a single money value.
-    if payment and not amount_match and not quantity:
+    if (payment or credit) and not amount_match and not quantity:
         candidates = list(re.finditer(_LEFT + rf"(?P<number>{_NUMBER})" + _RIGHT, cleaned))
         if len(candidates) > 1:
             return []
