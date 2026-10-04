@@ -100,25 +100,25 @@ export function ComparisonSequence({ compact = false }: Props) {
     <div ref={root} className="welcome-root comparison-root" data-compact={compact}>
       <section ref={section} className="comparison-section" aria-labelledby="comparison-title">
         <a className="skip-link" href="#comparison-end">Skip comparison animation</a>
-        <div className="comparison-heading"><p className="eyebrow">SEQUENCE / 002</p><h2 id="comparison-title">एक ही बात. दो तरीके.</h2><p>कागज़ पर लिखा हिसाब और Hisabb में बचा हिसाब.</p></div>
+        <div className="comparison-heading"><p className="eyebrow">SEQUENCE / 002</p><h2 id="comparison-title">One Story. Two Ways. <span className="text-xl font-normal text-stone-500">· एक ही बात. दो तरीके.</span></h2><p>Paper notebook vs. Hisabb digital ledger · कागज़ पर लिखा हिसाब और Hisabb में बचा हिसाब.</p></div>
         <div className="comparison-stage" aria-label={comparisonSummary} role="img">
           <div ref={notebook} className="ledger-panel notebook-panel">
-            <div className="panel-title"><div><span lang="hi">पुरानी कॉपी</span><small>the paper khata</small></div><span className="page-number">पन्ना 42</span></div>
+            <div className="panel-title"><div><span>Paper Khata <small className="inline ml-1 font-normal">(पुरानी कॉपी)</small></span><small>traditional paper notebook</small></div><span className="page-number">Page 42 · पन्ना 42</span></div>
             <div className="ruled-page"><div className="red-margin" />
-              <ul className="notebook-entries">{comparisonEntries.map((entry, index) => <li ref={(el) => { notebookLines.current[index] = el; }} key={entry.item}><span className="hand-name" lang={index === 1 ? 'en' : 'hi'}>{entry.notebook}</span><span lang="hi"> · {entry.item}</span><b>₹{entry.amount}</b></li>)}</ul>
+              <ul className="notebook-entries">{comparisonEntries.map((entry, index) => <li ref={(el) => { notebookLines.current[index] = el; }} key={entry.item}><span className="hand-name">{entry.notebook}</span><span> · {entry.item}</span><b>₹{entry.amount}</b></li>)}</ul>
               <div className="name-brackets">{comparisonEntries.map((entry, index) => <div ref={(el) => { brackets.current[index] = el; }} className="account-bracket" key={`${entry.notebook}-${index}`}><span>{entry.notebook}</span></div>)}</div>
               <div ref={blot} className="ink-blot" aria-hidden="true" /><div ref={strike} className="strike-stroke" aria-hidden="true" />
               <div ref={tear} className="torn-corner" aria-hidden="true" />
-              <div ref={notebookTotal} className="notebook-total"><span>जोड़</span><strong>₹650</strong><svg ref={redCircle} viewBox="0 0 170 65" aria-hidden="true"><ellipse cx="85" cy="32" rx="77" ry="24" /></svg><small>?</small></div>
+              <div ref={notebookTotal} className="notebook-total"><span>Total · जोड़</span><strong>₹650</strong><svg ref={redCircle} viewBox="0 0 170 65" aria-hidden="true"><ellipse cx="85" cy="32" rx="77" ry="24" /></svg><small>?</small></div>
             </div>
           </div>
           <div ref={hisabb} className="ledger-panel hisabb-panel">
-            <div className="panel-title"><div><span lang="hi">हिसाब</span><small>the clear ledger</small></div><span className="saved-label"><Check size={15} /> saved</span></div>
-            <div className="clean-ledger"><div className="clean-ledger-head"><span>Customer</span><span>Items</span><span>Balance</span></div><ul>{comparisonEntries.map((entry, index) => <li ref={(el) => { hisabbRows.current[index] = el; }} key={entry.item}><span className="clean-customer">{entry.hisabb}<small lang="hi">शर्मा जी</small></span><span lang="hi">{entry.item}</span><strong>₹{entry.amount}</strong><Check size={15} className="row-check" /></li>)}</ul><div ref={fuzzy} className="merge-banner"><Sparkles size={15} /><span lang="hi">तीन नाम, एक ग्राहक</span><small>Fuzzy match: Sharma</small></div><div className="clean-total"><span lang="hi">शर्मा · कुल बाकी</span><strong>₹<span ref={hisabbTotal}>0</span></strong></div><div className="edit-note"><Pencil size={14} /><span>Quick edit</span><b ref={editedAmount}>₹350</b><small>saved</small></div></div>
-            <div ref={stamp} className="final-stamp" lang="hi">हिसाब पक्का</div>
+            <div className="panel-title"><div><span>Hisabb Ledger <small className="inline ml-1 font-normal">(हिसाब)</small></span><small>clean digital record</small></div><span className="saved-label"><Check size={15} /> saved</span></div>
+            <div className="clean-ledger"><div className="clean-ledger-head"><span>Customer · ग्राहक</span><span>Item · सामान</span><span>Balance · बाकी</span></div><ul>{comparisonEntries.map((entry, index) => <li ref={(el) => { hisabbRows.current[index] = el; }} key={entry.item}><span className="clean-customer">{entry.hisabb}<small lang="hi">शर्मा जी</small></span><span>{entry.item}</span><strong>₹{entry.amount}</strong><Check size={15} className="row-check" /></li>)}</ul><div ref={fuzzy} className="merge-banner"><Sparkles size={15} /><span>Three spellings, one customer · तीन नाम, एक ग्राहक</span><small>Fuzzy match: Sharma Ji</small></div><div className="clean-total"><span>Sharma Ji · Balance · कुल बाकी</span><strong>₹<span ref={hisabbTotal}>0</span></strong></div><div className="edit-note"><Pencil size={14} /><span>Quick edit</span><b ref={editedAmount}>₹350</b><small>saved</small></div></div>
+            <div ref={stamp} className="final-stamp">SETTLED · हिसाब पक्का</div>
           </div>
         </div>
-        <div id="comparison-end" ref={caption} className="sequence-caption"><span lang="hi">{comparisonCaption}</span><small>From paper to a clear account.</small></div>
+        <div id="comparison-end" ref={caption} className="sequence-caption"><span>From paper notebook to clear accounts</span><small>कॉपी से हिसाब तक · Zero manual recalculation</small></div>
       </section>
     </div>
   );

@@ -136,26 +136,26 @@ export function SummarySequence() {
     <div ref={root} className="welcome-root summary-root">
       <section ref={section} className="summary-section" aria-labelledby="summary-title">
         <a className="skip-link" href="#summary-end">Skip summary animation</a>
-        <div className="summary-heading"><p className="eyebrow">SEQUENCE / 003</p><h2 id="summary-title">हफ्ता. एक नज़र में.</h2><p>बकाया देखिए, तगादा भेजिए, भुगतान लिखिए.</p></div>
+        <div className="summary-heading"><p className="eyebrow">SEQUENCE / 003</p><h2 id="summary-title">Weekly At A Glance <span className="text-xl font-normal text-stone-500">· हफ्ता. एक नज़र में.</span></h2><p>View balances, send WhatsApp reminders, record payments · बकाया देखिए, तगादा भेजिए, भुगतान लिखिए.</p></div>
         <div className="summary-stage" aria-label={summaryDescription} role="img">
           <div className="summary-phone">
             <div className="summary-screen" ref={summaryScreen}>
-              <header className="summary-phone-header"><button aria-label="Go back"><ArrowLeft size={17} /></button><div><strong>हफ्ता</strong><small>इस हफ्ते का हिसाब</small></div><span className="summary-week">W / 42</span></header>
+              <header className="summary-phone-header"><button aria-label="Go back"><ArrowLeft size={17} /></button><div><strong>Weekly · हफ्ता</strong><small>Weekly credit ledger · इस हफ्ते का हिसाब</small></div><span className="summary-week">W / 42</span></header>
               <div className="summary-body">
-                <div className="summary-banner"><div><small>कुल बाकी</small><strong ref={bannerTotal}>₹0</strong></div><div><small>ग्राहक</small><strong ref={debtorCount}>0</strong></div><Sparkles size={20} /></div>
-                <div className="sorted-label"><span>सबसे ज्यादा बाकी</span><ChevronRight size={14} /></div>
-                <ul className="debtor-stack">{weeklyDebtors.map((debtor, index) => <li ref={(el) => { debtorCards.current[index] = el; }} className="debtor-card" key={debtor.name}><div className="debtor-avatar">{debtor.name.slice(0, 1)}</div><div className="debtor-copy"><strong>{debtor.name}</strong><small>{debtor.detail}</small></div><b>₹{debtor.balance}</b><Check size={14} /></li>)}</ul>
+                <div className="summary-banner"><div><small>Total Pending · कुल बाकी</small><strong ref={bannerTotal}>₹0</strong></div><div><small>Debtors · ग्राहक</small><strong ref={debtorCount}>0</strong></div><Sparkles size={20} /></div>
+                <div className="sorted-label"><span>Highest pending first · सबसे ज्यादा बाकी</span><ChevronRight size={14} /></div>
+                <ul className="debtor-stack">{weeklyDebtors.map((debtor, index) => <li ref={(el) => { debtorCards.current[index] = el; }} className="debtor-card" key={debtor.name}><div className="debtor-avatar">{debtor.avatar || debtor.name.slice(0, 1)}</div><div className="debtor-copy"><strong>{debtor.name} <span className="text-xs font-normal text-stone-400">({debtor.name_hi})</span></strong><small>{debtor.detail}</small></div><b>₹{debtor.balance}</b><Check size={14} /></li>)}</ul>
                 {weeklyDebtors.slice(0, -1).map((_, index) => <div ref={(el) => { rules.current[index] = el; }} className="stack-rule" key={index} />)}
-                <div ref={reminderPreview} className="reminder-preview"><span className="preview-label">तगादा का मसौदा</span><p ref={message}>{weeklySummary.reminder}</p><button ref={reminderButton}><MessageCircle size={17} /><span>व्हाट्सएप पर तगादा भेजें</span><span ref={ripple} className="button-ripple" /></button></div>
-                <div ref={paymentRow} className="payment-row"><span className="payment-dot" /><div><strong>जमा ₹{weeklySummary.payment}</strong><small>शर्मा जी · अभी</small></div><span ref={paymentStamp} className="payment-stamp">दर्ज</span></div>
-                <div className="balance-row"><span>शर्मा जी · बाकी</span><strong>₹<span ref={balanceValue}>700</span></strong><span ref={balanceOld} className="balance-layer old">₹700</span><span ref={balanceNew} className="balance-layer new">₹400</span></div>
+                <div ref={reminderPreview} className="reminder-preview"><span className="preview-label">WhatsApp Reminder Draft · तगादा का मसौदा</span><p ref={message}>{weeklySummary.reminder}</p><button ref={reminderButton}><MessageCircle size={17} /><span>Send WhatsApp Reminder · व्हाट्सएप पर भेजें</span><span ref={ripple} className="button-ripple" /></button></div>
+                <div ref={paymentRow} className="payment-row"><span className="payment-dot" /><div><strong>Payment Received · जमा ₹{weeklySummary.payment}</strong><small>Sharma Ji · Just now (अभी)</small></div><span ref={paymentStamp} className="payment-stamp">RECORDED · दर्ज</span></div>
+                <div className="balance-row"><span>Sharma Ji · Remaining (बाकी)</span><strong>₹<span ref={balanceValue}>700</span></strong><span ref={balanceOld} className="balance-layer old">₹700</span><span ref={balanceNew} className="balance-layer new">₹400</span></div>
               </div>
               <footer className="summary-phone-footer"><span className="footer-dot active" /><span className="footer-dot" /><span className="footer-dot" /></footer>
             </div>
-            <div ref={composer} className="chat-composer"><header><span><ArrowLeft size={16} /></span><div><strong>शर्मा जी</strong><small>नया संदेश</small></div><MessageCircle size={17} /></header><div className="chat-paper"><div className="chat-bubble draft"><Edit3 size={14} /><p>{weeklySummary.reminder}</p></div><div ref={sentBubble} className="chat-bubble sent"><p>{weeklySummary.reminder}</p><small>अभी <svg ref={ticks} viewBox="0 0 30 16" aria-hidden="true"><path d="M1 8l4 4L13 3M12 8l4 4L29 2" /></svg></small></div></div><div className="composer-bar"><span>संदेश लिखें...</span><button aria-label="Send message"><Send size={17} /></button></div></div>
+            <div ref={composer} className="chat-composer"><header><span><ArrowLeft size={16} /></span><div><strong>Sharma Ji (शर्मा जी)</strong><small>New WhatsApp message · नया संदेश</small></div><MessageCircle size={17} /></header><div className="chat-paper"><div className="chat-bubble draft"><Edit3 size={14} /><p>{weeklySummary.reminder}</p></div><div ref={sentBubble} className="chat-bubble sent"><p>{weeklySummary.reminder}</p><small>Just now · अभी <svg ref={ticks} viewBox="0 0 30 16" aria-hidden="true"><path d="M1 8l4 4L13 3M12 8l4 4L29 2" /></svg></small></div></div><div className="composer-bar"><span>Type a message · संदेश लिखें...</span><button aria-label="Send message"><Send size={17} /></button></div></div>
           </div>
         </div>
-        <div id="summary-end" ref={caption} className="sequence-caption"><span lang="hi">{summaryCaption}</span><small>Respectful reminders, clear records.</small></div>
+        <div id="summary-end" ref={caption} className="sequence-caption"><span>Respectful reminders, zero hassle</span><small>तगादा. बिना झंझट. · One tap to friendly payment links.</small></div>
       </section>
     </div>
   );
