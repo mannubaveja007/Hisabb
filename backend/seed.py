@@ -111,5 +111,16 @@ def seed():
     print("Seed complete: 10 customers, 6 items, initial stock, and sample transactions inserted.")
     db.close()
 
+def seed_if_empty():
+    """Create the demo ledger only for a brand-new empty database."""
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        if db.query(Customer).first() is None:
+            seed()
+    finally:
+        db.close()
+
+
 if __name__ == "__main__":
     seed()

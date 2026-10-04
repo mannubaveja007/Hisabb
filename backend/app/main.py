@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import engine, Base
+from seed import seed_if_empty
 from app.routes import (
     transcribe,
     parse,
@@ -20,8 +21,9 @@ from app.routes import (
     summary,
 )
 
-# Auto-create tables on startup
+# Auto-create tables and populate a new demo database on startup.
 Base.metadata.create_all(bind=engine)
+seed_if_empty()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
