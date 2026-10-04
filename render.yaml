@@ -3,10 +3,10 @@ services:
     name: hisabb-api
     runtime: python
     rootDir: backend
-    buildCommand: python --version && python -m pip install --only-binary=av -r requirements.txt && python -c "from faster_whisper import WhisperModel; WhisperModel('small', device='cpu', compute_type='int8')"
+    buildCommand: python --version && python -m pip install --only-binary=av -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
-    plan: standard
+    plan: free
     envVars:
       - key: DATABASE_URL
         sync: false
@@ -18,10 +18,12 @@ services:
         sync: false
       - key: OLLAMA_MODEL
         sync: false
+      - key: GROQ_API_KEY
+        sync: false
       - key: PYTHON_VERSION
         value: 3.12.8
       - key: WHISPER_MODEL_SIZE
-        value: small
+        value: base
       - key: WHISPER_DEVICE
         value: cpu
       - key: WHISPER_COMPUTE_TYPE

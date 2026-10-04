@@ -40,6 +40,33 @@ class WhisperService:
         return self.model
 
     def transcribe(self, file_bytes: bytes, filename: str) -> dict:
+        prompt = build_initial_prompt()
+
+        # 1. Fast Groq Cloud Whisper if GROQ_API_KEY is configured (0.2s latency, 0 server RAM)
+        groq_key = getattr(settings, "GROQ_API_KEY", "") or os.getenv("GROQ_API_KEY", "")
+        if groq_key.strip():
+            try:
+                import requests
+                url = "https://api.groq.com/openai/v1/audio/transcriptions"
+                headers = {"Authorization": f"Bearer {groq_key.strip()}"}
+                files = {"file": (filename or "audio.wav", file_bytes, "audio/wav")}
+                data = {
+                    "model": "whisper-large-v3-turbo",
+                    "temperature": 0.0,
+                    "prompt": prompt,
+                    "response_format": "verbose_json"
+                }
+                resp = requests.post(url, headers=headers, files=files, data=data, timeout=10)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    return {
+                        "text": data.get("text", "").strip(),
+                        "language": data.get("language", "hi")
+                    }
+            except Exception:
+                pass  # Fall back to local faster-whisper
+
+        # 2. Local faster-whisper
         ext = os.path.splitext(filename)[1] or ".wav"
         with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
             tmp.write(file_bytes)
@@ -47,7 +74,6 @@ class WhisperService:
 
         try:
             model = self._get_model()
-            prompt = build_initial_prompt()
             segments, info = model.transcribe(
                 tmp_path,
                 beam_size=5,

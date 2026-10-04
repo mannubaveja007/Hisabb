@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     WHISPER_COMPUTE_TYPE: str = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
     WHISPER_LANGUAGE: str = os.getenv("WHISPER_LANGUAGE", "")
     WHISPER_TASK: str = os.getenv("WHISPER_TASK", "translate")
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     CORS_ORIGINS: str = "http://localhost:3000"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
