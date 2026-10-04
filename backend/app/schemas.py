@@ -87,6 +87,7 @@ class CustomerBalanceItem(BaseModel):
     total_paid: float
     balance: float
     last_transaction_at: Optional[str] = None
+    recent_item: Optional[str] = None
 
 class CustomerBalancesResponse(BaseModel):
     customers: List[CustomerBalanceItem]

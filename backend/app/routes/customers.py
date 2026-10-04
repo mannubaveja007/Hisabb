@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func, case, desc
+from sqlalchemy import func, case, desc, select
 from app.database import get_db
-from app.models import Customer, Entry
+from app.models import Customer, Entry, Item
 from app.schemas import (
     CustomerBalancesResponse,
     CustomerBalanceItem,
@@ -26,6 +26,21 @@ def get_customer_balances(db: Session = Depends(get_db)):
     )
     last_tx = func.max(Entry.created_at)
 
+    item_desc = case(
+        (Entry.type == "payment", func.coalesce(Entry.notes, "Cash Payment")),
+        else_=func.coalesce(Entry.raw_item_name, Item.name, "Udhaar")
+    )
+
+    latest_entry_sub = (
+        select(item_desc)
+        .select_from(Entry)
+        .outerjoin(Item, Entry.item_id == Item.id)
+        .where(Entry.customer_id == Customer.id)
+        .order_by(desc(Entry.created_at), desc(Entry.id))
+        .limit(1)
+        .scalar_subquery()
+    )
+
     results = (
         db.query(
             Customer.id,
@@ -35,6 +50,7 @@ def get_customer_balances(db: Session = Depends(get_db)):
             payment_sum.label("total_paid"),
             (credit_sum - payment_sum).label("balance"),
             last_tx.label("last_transaction_at"),
+            latest_entry_sub.label("recent_item"),
         )
         .outerjoin(Entry, Customer.id == Entry.customer_id)
         .group_by(Customer.id)
@@ -51,11 +67,18 @@ def get_customer_balances(db: Session = Depends(get_db)):
             total_paid=float(r.total_paid),
             balance=float(r.balance),
             last_transaction_at=r.last_transaction_at.isoformat() if r.last_transaction_at else None,
+            recent_item=r.recent_item,
         )
         for r in results
     ]
 
     return CustomerBalancesResponse(customers=customers)
+
+@router.post("/seed-reset")
+def reset_seed_data(db: Session = Depends(get_db)):
+    from app.seed import seed
+    seed()
+    return {"status": "ok", "message": "Demo data reseeded successfully"}
 
 @router.get("/{id}/history", response_model=CustomerHistoryResponse)
 def get_customer_history(id: int, db: Session = Depends(get_db)):

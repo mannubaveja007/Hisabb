@@ -91,6 +91,7 @@ export interface CustomerBalanceItem {
   total_paid: number;
   balance: number; // Computed in code: total_credit - total_paid
   last_transaction_at: string | null;
+  recent_item?: string | null;
 }
 
 export interface CustomerBalancesResponse {
