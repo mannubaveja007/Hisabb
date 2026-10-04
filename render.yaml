@@ -17,6 +17,8 @@ services:
         sync: false
       - key: OLLAMA_MODEL
         sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.8
       - key: WHISPER_MODEL_SIZE
         value: base
       - key: WHISPER_DEVICE
