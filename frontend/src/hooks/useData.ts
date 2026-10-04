@@ -98,7 +98,8 @@ export function useCustomerBalances() {
     SWR_KEYS.balances,
     () => api.getCustomerBalances(),
     {
-      revalidateOnFocus: false,
+      revalidateOnFocus: true,
+      revalidateOnMount: true,
       fallbackData: { customers: MOCK_CUSTOMERS },
       onErrorRetry: (err, key, config, revalidate, { retryCount }) => {
         if (retryCount >= 2) return;
@@ -128,7 +129,8 @@ export function useCustomerHistory(customerId: number | null) {
     key,
     () => api.getCustomerHistory(customerId!),
     {
-      revalidateOnFocus: false,
+      revalidateOnFocus: true,
+      revalidateOnMount: true,
       fallbackData: mockFallback || undefined,
     }
   );
@@ -148,7 +150,8 @@ export function useInventory() {
     SWR_KEYS.inventory,
     () => api.getInventory(),
     {
-      revalidateOnFocus: false,
+      revalidateOnFocus: true,
+      revalidateOnMount: true,
       fallbackData: { items: MOCK_INVENTORY },
     }
   );
@@ -169,7 +172,8 @@ export function useWeeklySummary() {
     SWR_KEYS.weekly,
     () => api.getWeeklySummary(),
     {
-      revalidateOnFocus: false,
+      revalidateOnFocus: true,
+      revalidateOnMount: true,
       fallbackData: MOCK_WEEKLY_SUMMARY,
     }
   );
