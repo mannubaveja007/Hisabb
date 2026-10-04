@@ -30,7 +30,9 @@ const getBaseUrl = (): string => {
   if (typeof window !== 'undefined' && window.location.port === '3000') {
     return 'http://localhost:8000';
   }
-  return '';
+  // Keep the hosted demo usable even when a Vercel deployment was created
+  // before NEXT_PUBLIC_API_URL was added to its Production environment.
+  return 'https://hisabb.onrender.com';
 };
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
