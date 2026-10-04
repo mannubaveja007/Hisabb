@@ -1,7 +1,8 @@
 import json
 import logging
+import re
 import requests
-from typing import List
+from typing import List, Optional
 from app.config import settings
 from app.schemas import LLMParseResult, LLMEntryExtraction
 
@@ -130,19 +131,95 @@ def call_ollama(text: str) -> dict:
     raw_response = response.json().get("response", "{}")
     return json.loads(raw_response)
 
+_HINDI_NUMBERS = {
+    "एक": 1.0, "दो": 2.0, "तीन": 3.0, "चार": 4.0, "पाँच": 5.0,
+    "पांच": 5.0, "छह": 6.0, "सात": 7.0, "आठ": 8.0, "नौ": 9.0,
+    "दस": 10.0, "ग्यारह": 11.0, "बारह": 12.0, "सौ": 100.0,
+    "डेढ़": 1.5, "डेढ़": 1.5, "ढाई": 2.5, "साढ़े": 1.5, "साढ़े": 1.5,
+}
+
+
+def _number_from_text(value: str) -> Optional[float]:
+    value = value.strip().lower()
+    if value.isdigit():
+        return float(value)
+    if value in _HINDI_NUMBERS:
+        return _HINDI_NUMBERS[value]
+    match = re.search(r"(\d+(?:\.\d+)?)", value)
+    return float(match.group(1)) if match else None
+
+
+def _fallback_parse(text: str) -> List[LLMEntryExtraction]:
+    """Best-effort parser for common short Hindi/Hinglish ledger commands."""
+    cleaned = re.sub(r"[,।]", " ", text).strip()
+    if not cleaned:
+        return []
+
+    is_payment = bool(re.search(r"(भुगतान|जमा|दिए|दिये|paid|payment|jama|diye|de diye)", cleaned, re.I))
+    is_credit = bool(re.search(r"(उधार|बाकी|लिया|liya|udhaar|baaki)", cleaned, re.I))
+    entry_type = "payment" if is_payment and not is_credit else "credit"
+
+    amount = 0.0
+    amount_match = re.search(
+        r"(साढ़े|साढ़े)\s*सौ|((?:\d+(?:\.\d+)?)|(?:एक|दो|तीन|चार|पाँच|पांच|छह|सात|आठ|नौ|दस|सौ))\s*(?:रुपये|रुपए|रुपया|rs|rupees?)",
+        cleaned,
+        re.I,
+    )
+    if amount_match:
+        if amount_match.group(1):
+            amount = 150.0
+        else:
+            parsed_amount = _number_from_text(amount_match.group(2))
+            amount = parsed_amount or 0.0
+    elif is_payment:
+        payment_amount = re.search(r"\b(\d+(?:\.\d+)?)\b", cleaned)
+        if payment_amount:
+            amount = float(payment_amount.group(1))
+
+    qty = None
+    unit = None
+    qty_match = re.search(r"(\d+(?:\.\d+)?|एक|दो|तीन|चार|पाँच|पांच|पाँच|साढ़े|साढ़े|डेढ़|डेढ़|ढाई)\s*(किलो|किलोग्राम|kg|लीटर|लीटर|ltr|पैकेट|packet|पेटी|peti|बैग|bag)", cleaned, re.I)
+    if qty_match:
+        qty = _number_from_text(qty_match.group(1))
+        unit = qty_match.group(2)
+        if re.search(r"साढ़े|साढ़े", qty_match.group(1), re.I):
+            qty = 1.5
+
+    customer_match = re.match(        r"\s*([^,]+?)(?:\s+ने|\s+ne|\s+जी|\s+ji|\s+भाई|\s+bhai|\s+ton|\s+ko|,|$)", cleaned, re.I)
+    customer = customer_match.group(1).strip() if customer_match else None
+    customer = re.sub(r"\s+(जी|भाई|ji|bhai)$", "", customer or "", flags=re.I).strip() or None
+
+    item = None
+    if qty_match:
+        remainder = cleaned[qty_match.end():]
+        item_match = re.match(r"\s*([^,]+?)(?=\s+(?:\d|साढ़े|साढ़े|रुपये|रुपए|रुपया)|,|$)", remainder, re.I)
+        if item_match:
+            item = item_match.group(1).strip() or None
+
+    if not (is_payment or is_credit or qty is not None or amount > 0):
+        return []
+
+    return [LLMEntryExtraction(
+        customer=customer,
+        type=entry_type,
+        item=item,
+        qty=qty,
+        unit=unit,
+        amount=amount,
+        confidence=0.55,
+    )]
+
+
 def parse_with_ollama(text: str) -> List[LLMEntryExtraction]:
-    # Attempt 1
     try:
         data = call_ollama(text)
         validated = LLMParseResult(**data)
-        return validated.entries
-    except Exception as e1:
-        logger.warning(f"Ollama extraction failed on attempt 1: {e1}. Retrying once...")
-        # Retry once
-        try:
-            data = call_ollama(f"Please output strictly valid JSON conforming to the schema:\n{text}")
-            validated = LLMParseResult(**data)
+        if validated.entries:
             return validated.entries
-        except Exception as e2:
-            logger.error(f"Ollama extraction failed on retry: {e2}. Returning no entries.")
-            return []
+    except Exception as error:
+        logger.warning("Ollama extraction failed: %s", error)
+
+    fallback_entries = _fallback_parse(text)
+    if fallback_entries:
+        logger.info("Using deterministic parser fallback for transcription")
+    return fallback_entries
