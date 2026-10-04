@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import engine, Base, SessionLocal
 from app.models import Customer, Item, Entry
-from seed import seed_if_empty
+from app.seed import seed_if_empty
 from app.routes import (
     transcribe,
     parse,
