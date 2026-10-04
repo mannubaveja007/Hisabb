@@ -6,6 +6,7 @@ services:
     buildCommand: python --version && python -m pip install --only-binary=av -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
+    plan: standard
     envVars:
       - key: DATABASE_URL
         sync: false
@@ -20,10 +21,12 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.8
       - key: WHISPER_MODEL_SIZE
-        value: base
+        value: small
       - key: WHISPER_DEVICE
         value: cpu
       - key: WHISPER_COMPUTE_TYPE
         value: int8
       - key: WHISPER_LANGUAGE
-        value: hi
+        value: ""
+      - key: WHISPER_TASK
+        value: translate
