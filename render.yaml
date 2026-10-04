@@ -3,7 +3,7 @@ services:
     name: hisabb-api
     runtime: python
     rootDir: backend
-    buildCommand: python --version && python -m pip install --only-binary=av -r requirements.txt
+    buildCommand: python --version && python -m pip install --only-binary=av -r requirements.txt && python -c "from faster_whisper import WhisperModel; WhisperModel('small', device='cpu', compute_type='int8')"
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     plan: standard
