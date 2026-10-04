@@ -93,9 +93,11 @@ export function useRecorder(): UseRecorderResult {
             streamRef.current = null;
           }
 
+          setState('idle');
           resolve(blob);
         } catch (e: any) {
           setError(e.message || 'Error creating audio blob');
+          setState('idle');
           resolve(null);
         }
       };
