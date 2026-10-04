@@ -1,7 +1,27 @@
 import os
 import tempfile
-from faster_whisper import WhisperModel
 from app.config import settings
+
+# Fix compatibility between faster-whisper and newer PyAV (av >= 14/15/19)
+# where metadata_errors argument was removed from av.open()
+try:
+    import av
+    _orig_av_open = av.open
+
+    def _safe_av_open(*args, **kwargs):
+        kwargs.pop("metadata_errors", None)
+        return _orig_av_open(*args, **kwargs)
+
+    av.open = _safe_av_open
+    try:
+        import faster_whisper.audio as _fwa
+        _fwa.av.open = _safe_av_open
+    except Exception:
+        pass
+except Exception:
+    pass
+
+from faster_whisper import WhisperModel
 
 class WhisperService:
     def __init__(self):
