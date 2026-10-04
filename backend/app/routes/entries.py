@@ -14,15 +14,24 @@ def create_entries(payload: CreateEntriesRequest, db: Session = Depends(get_db))
         # Resolve customer if needed
         customer_id = entry_in.customer_id
         if not customer_id and entry_in.raw_customer_name:
+            from app.services.fuzzy_service import transliterate_name, is_devanagari
+            clean_name = (
+                transliterate_name(entry_in.raw_customer_name.strip())
+                if is_devanagari(entry_in.raw_customer_name)
+                else entry_in.raw_customer_name.strip()
+            )
             existing_cust = (
                 db.query(Customer)
-                .filter(Customer.name.ilike(entry_in.raw_customer_name.strip()))
+                .filter(
+                    (Customer.name.ilike(clean_name)) |
+                    (Customer.name.ilike(entry_in.raw_customer_name.strip()))
+                )
                 .first()
             )
             if existing_cust:
                 customer_id = existing_cust.id
             else:
-                new_cust = Customer(name=entry_in.raw_customer_name.strip())
+                new_cust = Customer(name=clean_name)
                 db.add(new_cust)
                 db.flush()
                 customer_id = new_cust.id

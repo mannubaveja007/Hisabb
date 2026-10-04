@@ -15,7 +15,8 @@ _NUMBERS = {
 }
 _SCALES = {
     "सौ": 100, "sau": 100, "soo": 100, "so": 100,
-    "हजार": 1000, "हज़ार": 1000, "hazaar": 1000, "hazar": 1000, "hazzaar": 1000, "hazzar": 1000, "k": 1000
+    "हजार": 1000, "हज़ार": 1000, "hazaar": 1000, "hazar": 1000, "hazzaar": 1000, "hazzar": 1000,
+    "जार": 1000, "ज़ार": 1000, "जा़र": 1000, "zaar": 1000, "jaar": 1000, "k": 1000
 }
 _WORD = "(?:" + "|".join(sorted(map(re.escape, _NUMBERS), key=len, reverse=True)) + ")"
 _SCALE = "(?:" + "|".join(_SCALES) + ")"

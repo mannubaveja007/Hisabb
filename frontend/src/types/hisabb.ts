@@ -31,6 +31,7 @@ export interface ParsedDraftEntry {
   amount: number;
   confidence: number;
   customer_match: CustomerMatch | null;
+  customer_english?: string | null;
 }
 
 export interface ParseRequest {

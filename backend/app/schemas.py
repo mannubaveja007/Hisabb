@@ -25,6 +25,7 @@ class ParsedDraftEntry(BaseModel):
     amount: float = 0.0
     confidence: float = 1.0
     customer_match: Optional[CustomerMatch] = None
+    customer_english: Optional[str] = None
 
 class ParseRequest(BaseModel):
     text: str

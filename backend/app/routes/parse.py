@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas import ParseRequest, ParseResponse, ParsedDraftEntry
 from app.services.ollama_service import parse_with_ollama
-from app.services.fuzzy_service import match_customer, devanagari_to_latin, is_devanagari
+from app.services.fuzzy_service import match_customer, transliterate_name, is_devanagari
 
 router = APIRouter(prefix="/api", tags=["Parse"])
 
@@ -20,6 +20,13 @@ def parse_voice_text(request: ParseRequest, db: Session = Depends(get_db)):
 
     for item in llm_entries:
         cust_match = match_customer(db, item.customer) if item.customer else None
+        cust_english = None
+        if item.customer:
+            if cust_match and cust_match.score >= 0.85:
+                cust_english = cust_match.name
+            else:
+                cust_english = transliterate_name(item.customer)
+
         response_entries.append(
             ParsedDraftEntry(
                 customer=item.customer,
@@ -29,7 +36,8 @@ def parse_voice_text(request: ParseRequest, db: Session = Depends(get_db)):
                 unit=item.unit,
                 amount=item.amount,
                 confidence=item.confidence,
-                customer_match=cust_match
+                customer_match=cust_match,
+                customer_english=cust_english
             )
         )
 

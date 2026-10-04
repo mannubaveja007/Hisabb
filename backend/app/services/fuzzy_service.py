@@ -69,8 +69,35 @@ def devanagari_to_latin(text: str) -> str:
     return ' '.join(res_words)
 
 
+COMMON_NAMES = {
+    'सिद्धू': 'Sidhu', 'सिधु': 'Sidhu', 'मुसे': 'Moose', 'मूसे': 'Moose',
+    'वाला': 'Wala', 'मन्नू': 'Mannu', 'मनू': 'Mannu', 'बवेजा': 'Baveja',
+    'शर्मा': 'Sharma', 'वर्मा': 'Verma', 'गुप्ता': 'Gupta', 'सिंह': 'Singh',
+    'कौर': 'Kaur', 'कुमार': 'Kumar', 'देवी': 'Devi', 'प्रसाद': 'Prasad',
+    'चावला': 'Chawla', 'इमरान': 'Imran', 'सुरेश': 'Suresh', 'रमेश': 'Ramesh',
+    'अनीता': 'Anita', 'विकास': 'Vikas', 'सुनीता': 'Sunita', 'पूजा': 'Pooja',
+    'मनप्रीत': 'Manpreet', 'हरप्रीत': 'Harpreet', 'राजिंदर': 'Rajinder'
+}
+
+
+def transliterate_name(text: Optional[str]) -> str:
+    if not text:
+        return ""
+    if not is_devanagari(text):
+        return text.strip()
+    words = text.split()
+    out = []
+    for w in words:
+        clean_w = w.strip(',।!?')
+        if clean_w in COMMON_NAMES:
+            out.append(COMMON_NAMES[clean_w])
+        else:
+            out.append(devanagari_to_latin(clean_w))
+    return ' '.join(out)
+
+
 def _normalize_name(value: str) -> str:
-    transliterated = devanagari_to_latin(value) if is_devanagari(value) else unidecode(value)
+    transliterated = transliterate_name(value) if is_devanagari(value) else unidecode(value)
     normalized = re.sub(r"[^a-z0-9 ]+", " ", transliterated.lower())
     normalized = re.sub(r"\s+", " ", normalized).strip()
     for suffix in (" ji", " sahab", " bhai", " bhaji", " uncle", " sir"):

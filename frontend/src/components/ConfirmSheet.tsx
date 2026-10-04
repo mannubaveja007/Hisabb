@@ -13,6 +13,87 @@ interface ConfirmSheetProps {
   queuePosition?: { current: number; total: number } | null;
 }
 
+const COMMON_NAMES: Record<string, string> = {
+  'सिद्धू': 'Sidhu', 'सिधु': 'Sidhu', 'मुसे': 'Moose', 'मूसे': 'Moose',
+  'वाला': 'Wala', 'मन्नू': 'Mannu', 'मनू': 'Mannu', 'बवेजा': 'Baveja',
+  'शर्मा': 'Sharma', 'वर्मा': 'Verma', 'गुप्ता': 'Gupta', 'सिंह': 'Singh',
+  'कौर': 'Kaur', 'कुमार': 'Kumar', 'देवी': 'Devi', 'प्रसाद': 'Prasad',
+  'चावला': 'Chawla', 'इमरान': 'Imran', 'सुरेश': 'Suresh', 'रमेश': 'Ramesh',
+  'अनीता': 'Anita', 'विकास': 'Vikas', 'सुनीता': 'Sunita', 'पूजा': 'Pooja',
+  'मनप्रीत': 'Manpreet', 'हरप्रीत': 'Harpreet', 'राजिंदर': 'Rajinder'
+};
+
+const CONSONANTS: Record<string, string> = {
+  'क': 'k', 'ख': 'kh', 'ग': 'g', 'घ': 'gh', 'ङ': 'ng',
+  'च': 'ch', 'छ': 'chh', 'ज': 'j', 'झ': 'jh', 'ञ': 'ny',
+  'ट': 't', 'ठ': 'th', 'ड': 'd', 'ढ': 'dh', 'ण': 'n',
+  'त': 't', 'थ': 'th', 'द': 'd', 'ध': 'dh', 'न': 'n',
+  'प': 'p', 'फ': 'ph', 'ब': 'b', 'भ': 'bh', 'म': 'm',
+  'य': 'y', 'र': 'r', 'ल': 'l', 'व': 'v', 'श': 'sh',
+  'ष': 'sh', 'स': 's', 'ह': 'h', 'क़': 'q', 'ख़': 'kh',
+  'ग़': 'gh', 'ज़': 'z', 'ड़': 'r', 'ढ़': 'rh', 'फ़': 'f'
+};
+
+const VOWELS: Record<string, string> = {
+  'अ': 'a', 'आ': 'aa', 'इ': 'i', 'ई': 'ee', 'उ': 'u', 'ऊ': 'oo',
+  'ऋ': 'ri', 'ए': 'e', 'ऐ': 'ai', 'ओ': 'o', 'औ': 'au'
+};
+
+const MATRAS: Record<string, string> = {
+  'ा': 'a', 'ि': 'i', 'ी': 'i', 'ु': 'u', 'ू': 'u',
+  'ृ': 'ri', 'े': 'e', 'ै': 'ai', 'ो': 'o', 'ौ': 'au',
+  'ं': 'n', 'ँ': 'n', 'ः': 'h'
+};
+
+function devanagariToEnglish(text: string): string {
+  if (!text) return '';
+  if (!/[\u0900-\u097F]/.test(text)) return text;
+
+  const words = text.split(/\s+/);
+  const outWords = words.map((rawWord) => {
+    const cleanWord = rawWord.replace(/[,।!?]/g, '').trim();
+    if (COMMON_NAMES[cleanWord]) {
+      return COMMON_NAMES[cleanWord];
+    }
+
+    const chars = Array.from(cleanWord);
+    const out: string[] = [];
+    const n = chars.length;
+    let i = 0;
+    while (i < n) {
+      const ch = chars[i];
+      if (VOWELS[ch]) {
+        out.push(VOWELS[ch]);
+      } else if (CONSONANTS[ch]) {
+        const cStr = CONSONANTS[ch];
+        if (i + 1 < n) {
+          const next = chars[i + 1];
+          if (next === '्') {
+            out.push(cStr);
+            i++;
+          } else if (MATRAS[next]) {
+            out.push(cStr + MATRAS[next]);
+            i++;
+          } else {
+            out.push(cStr + 'a');
+          }
+        } else {
+          out.push(cStr);
+        }
+      } else if (MATRAS[ch]) {
+        out.push(MATRAS[ch]);
+      } else {
+        out.push(ch);
+      }
+      i++;
+    }
+    const res = out.join('');
+    return res ? res.charAt(0).toUpperCase() + res.slice(1).toLowerCase() : '';
+  });
+
+  return outWords.filter(Boolean).join(' ');
+}
+
 export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
   entry,
   transcriptionText = "शर्मा जी को 5 किलो चावल उधार 700 रुपये",
@@ -27,8 +108,12 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
   useEffect(() => {
     if (entry) {
       const initialEntry = { ...entry };
-      if (entry.customer_match && entry.customer_match.score >= 0.80) {
+      if (entry.customer_match && entry.customer_match.score >= 0.75) {
         initialEntry.customer = entry.customer_match.name;
+      } else if (entry.customer_english) {
+        initialEntry.customer = entry.customer_english;
+      } else if (entry.customer && /[\u0900-\u097F]/.test(entry.customer)) {
+        initialEntry.customer = devanagariToEnglish(entry.customer);
       }
       setCurrentEntry(initialEntry);
     } else {
