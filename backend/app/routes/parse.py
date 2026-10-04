@@ -14,7 +14,7 @@ def parse_voice_text(request: ParseRequest, db: Session = Depends(get_db)):
 
     llm_entries = parse_with_ollama(request.text)
     if not llm_entries:
-        raise HTTPException(status_code=422, detail="Could not confidently parse a ledger entry")
+        raise HTTPException(status_code=422, detail="Could not understand this entry. Please repeat the customer, item, amount and credit/payment, or add it manually.")
 
     response_entries = []
 
