@@ -52,7 +52,7 @@ class WhisperService:
                 tmp_path,
                 beam_size=5,
                 language=settings.WHISPER_LANGUAGE or None,
-                task="transcribe",
+                task=settings.WHISPER_TASK or "translate",
                 condition_on_previous_text=True,
                 initial_prompt=prompt
             )

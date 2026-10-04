@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas import ParseRequest, ParseResponse, ParsedDraftEntry
 from app.services.ollama_service import parse_with_ollama
-from app.services.fuzzy_service import match_customer
+from app.services.fuzzy_service import match_customer, devanagari_to_latin, is_devanagari
 
 router = APIRouter(prefix="/api", tags=["Parse"])
 

@@ -25,7 +25,15 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
   const [confirmedMatch, setConfirmedMatch] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setCurrentEntry(entry ? { ...entry } : null);
+    if (entry) {
+      const initialEntry = { ...entry };
+      if (entry.customer_match && entry.customer_match.score >= 0.80) {
+        initialEntry.customer = entry.customer_match.name;
+      }
+      setCurrentEntry(initialEntry);
+    } else {
+      setCurrentEntry(null);
+    }
     setConfirmedMatch(null);
   }, [entry]);
 

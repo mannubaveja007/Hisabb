@@ -6,8 +6,71 @@ from sqlalchemy.orm import Session
 from app.models import Customer
 from app.schemas import CustomerMatch
 
+def is_devanagari(text: str) -> bool:
+    return any("\u0900" <= ch <= "\u097F" for ch in text)
+
+
+def devanagari_to_latin(text: str) -> str:
+    """Accurately transliterate Devanagari names to clean Latin/English script with schwa deletion."""
+    consonants = {
+        'क': 'k', 'ख': 'kh', 'ग': 'g', 'घ': 'gh', 'ङ': 'ng',
+        'च': 'ch', 'छ': 'chh', 'ज': 'j', 'झ': 'jh', 'ञ': 'ny',
+        'ट': 't', 'ठ': 'th', 'ड': 'd', 'ढ': 'dh', 'ण': 'n',
+        'त': 't', 'थ': 'th', 'द': 'd', 'ध': 'dh', 'न': 'n',
+        'प': 'p', 'फ': 'ph', 'ब': 'b', 'भ': 'bh', 'म': 'm',
+        'य': 'y', 'र': 'r', 'ल': 'l', 'व': 'v', 'श': 'sh',
+        'ष': 'sh', 'स': 's', 'ह': 'h', 'क़': 'q', 'ख़': 'kh',
+        'ग़': 'gh', 'ज़': 'z', 'ड़': 'r', 'ढ़': 'rh', 'फ़': 'f'
+    }
+    vowels = {
+        'अ': 'a', 'आ': 'aa', 'इ': 'i', 'ई': 'ee', 'उ': 'u', 'ऊ': 'oo',
+        'ऋ': 'ri', 'ए': 'e', 'ऐ': 'ai', 'ओ': 'o', 'औ': 'au'
+    }
+    matras = {
+        'ा': 'a', 'ि': 'i', 'ी': 'i', 'ु': 'u', 'ू': 'u',
+        'ृ': 'ri', 'े': 'e', 'ै': 'ai', 'ो': 'o', 'ौ': 'au',
+        'ं': 'n', 'ँ': 'n', 'ः': 'h'
+    }
+    halant = '्'
+
+    words = text.split()
+    res_words = []
+    for w in words:
+        out = []
+        n = len(w)
+        i = 0
+        while i < n:
+            ch = w[i]
+            if i + 1 < n and w[i:i+2] in consonants:
+                ch = w[i:i+2]
+                i += 1
+            if ch in vowels:
+                out.append(vowels[ch])
+            elif ch in consonants:
+                c_str = consonants[ch]
+                if i + 1 < n:
+                    next_ch = w[i+1]
+                    if next_ch == halant:
+                        out.append(c_str)
+                        i += 1
+                    elif next_ch in matras:
+                        out.append(c_str + matras[next_ch])
+                        i += 1
+                    else:
+                        out.append(c_str + 'a')
+                else:
+                    out.append(c_str)
+            elif ch in matras:
+                out.append(matras[ch])
+            else:
+                out.append(ch)
+            i += 1
+        res_words.append(''.join(out).title())
+    return ' '.join(res_words)
+
+
 def _normalize_name(value: str) -> str:
-    transliterated = unidecode(value)
+    transliterated = devanagari_to_latin(value) if is_devanagari(value) else unidecode(value)
     normalized = re.sub(r"[^a-z0-9 ]+", " ", transliterated.lower())
     normalized = re.sub(r"\s+", " ", normalized).strip()
     for suffix in (" ji", " sahab", " bhai", " bhaji", " uncle", " sir"):
