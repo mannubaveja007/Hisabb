@@ -99,6 +99,12 @@ def test_ollama_parser_invalid_json_fallback():
     ("Ramesh Kumar, Udhar, panch sau", "Ramesh Kumar", None, 500, "credit"),
     ("Ramesh Kumar, Udhar, panch soo", "Ramesh Kumar", None, 500, "credit"),
     ("Ramesh Kumar, Udhar, 500", "Ramesh Kumar", None, 500, "credit"),
+    ("Mannu Baveja udhaar 5000", "Mannu Baveja", None, 5000, "credit"),
+    ("Mannu Baveja, udhaar, 5,000", "Mannu Baveja", None, 5000, "credit"),
+    ("Mannu Baveja 5 hazaar udhaar", "Mannu Baveja", None, 5000, "credit"),
+    ("मनू बवेजा, उदार, पांच हज़ार", "मनू बवेजा", None, 5000, "credit"),
+    ("मन्नू बवेजा उधार 5 हज़ार", "मन्नू बवेजा", None, 5000, "credit"),
+    ("मन्नू बवेजा दार 5000", "मन्नू बवेजा", None, 5000, "credit"),
 ])
 def test_simple_entries_skip_remote_model(text, customer, qty, amount, entry_type):
     with patch("app.services.ollama_service.call_ollama") as remote:

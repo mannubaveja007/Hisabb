@@ -114,9 +114,19 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
             <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
               {customerName}
             </span>
-            <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
-              {isCredit ? 'Udhaar / Credit' : 'Payment / Jama'}
-            </span>
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentEntry((prev) =>
+                  prev ? { ...prev, type: prev.type === 'credit' ? 'payment' : 'credit' } : prev
+                )
+              }
+              title="Click to toggle Udhaar / Jama"
+              className="px-3 py-1 bg-red-100/90 hover:bg-red-200/80 active:scale-95 border border-red-300 rounded-lg text-red-700 font-bold text-sm cursor-pointer transition-all flex items-center gap-1"
+            >
+              <span>{isCredit ? 'Udhaar / Credit' : 'Payment / Jama'}</span>
+              <span className="text-[10px] text-red-500 font-normal">⇄</span>
+            </button>
             {itemName && (
               <span className="px-3 py-1 bg-red-50/70 border border-red-200 rounded-lg text-red-600 font-bold text-sm">
                 {itemName}
@@ -135,37 +145,63 @@ export const ConfirmSheet: React.FC<ConfirmSheetProps> = ({
           {/* 3-Column Breakdown with Watermark Stamp */}
           <div className="relative border-t border-b border-stone-100 py-4 mb-5 grid grid-cols-3 gap-2">
             {/* Watermark Red Stamp over Amount Column */}
-            <div className="absolute right-2 top-1 pointer-events-none select-none transform rotate-[-8deg] border-2 border-red-300/60 rounded-xl px-4 py-1.5 bg-red-50/30">
+            <div className="absolute right-2 top-1 pointer-events-none select-none transform rotate-[-8deg] border-2 border-red-300/60 rounded-xl px-4 py-1.5 bg-red-50/30 transition-all duration-200">
               <span className="text-2xl font-black text-red-400/50 tracking-wider uppercase font-mono">
                 {isCredit ? 'UDHAAR' : 'JAMA'}
               </span>
             </div>
 
             <div>
-              <span className="text-xs font-semibold text-stone-500 block mb-0.5">
+              <label htmlFor="confirm-customer" className="text-xs font-semibold text-stone-500 block mb-0.5">
                 Customer (ग्राहक)
-              </span>
-              <span className="text-lg font-black text-[#1C1917] block leading-tight">
-                {customerName}
-              </span>
+              </label>
+              <input
+                id="confirm-customer"
+                type="text"
+                value={currentEntry.customer || ''}
+                onChange={(e) =>
+                  setCurrentEntry((prev) => (prev ? { ...prev, customer: e.target.value } : prev))
+                }
+                placeholder="Customer name"
+                className="w-full text-lg font-black text-[#1C1917] bg-transparent border-b border-dashed border-stone-300 focus:border-red-500 focus:bg-stone-50/50 focus:outline-hidden py-0.5 leading-tight transition-colors"
+              />
             </div>
 
             <div>
-              <span className="text-xs font-semibold text-stone-500 block mb-0.5">
+              <label htmlFor="confirm-item" className="text-xs font-semibold text-stone-500 block mb-0.5">
                 Items (सामान)
-              </span>
-              <span className="text-lg font-black text-[#1C1917] block leading-tight">
-                {qtyText ? `${qtyText} ` : ''}{itemName}
-              </span>
+              </label>
+              <input
+                id="confirm-item"
+                type="text"
+                value={currentEntry.item || ''}
+                onChange={(e) =>
+                  setCurrentEntry((prev) => (prev ? { ...prev, item: e.target.value } : prev))
+                }
+                placeholder="Item (optional)"
+                className="w-full text-lg font-black text-[#1C1917] bg-transparent border-b border-dashed border-stone-300 focus:border-red-500 focus:bg-stone-50/50 focus:outline-hidden py-0.5 leading-tight transition-colors"
+              />
             </div>
 
             <div className="relative z-10">
-              <span className="text-xs font-semibold text-stone-500 block mb-0.5">
+              <label htmlFor="confirm-amount" className="text-xs font-semibold text-stone-500 block mb-0.5">
                 Amount (रकम)
-              </span>
-              <span className="text-2xl font-black font-mono text-[#1C1917] block leading-tight">
-                ₹{amountVal}
-              </span>
+              </label>
+              <div className="flex items-center">
+                <span className="text-xl font-black font-mono text-[#1C1917]">₹</span>
+                <input
+                  id="confirm-amount"
+                  type="number"
+                  step="any"
+                  value={currentEntry.amount || ''}
+                  onChange={(e) =>
+                    setCurrentEntry((prev) =>
+                      prev ? { ...prev, amount: parseFloat(e.target.value) || 0 } : prev
+                    )
+                  }
+                  className="w-full text-2xl font-black font-mono text-[#1C1917] bg-transparent border-b border-dashed border-stone-300 focus:border-red-500 focus:bg-stone-50/50 focus:outline-hidden py-0.5 leading-tight pl-1 transition-colors"
+                />
+              </div>
             </div>
           </div>
 

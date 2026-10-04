@@ -10,18 +10,21 @@ _NUMBERS = {
     "पाच": 5, "छह": 6, "सात": 7, "आठ": 8, "नौ": 9, "दस": 10,
     "ग्यारह": 11, "बारह": 12, "बीस": 20, "पचास": 50,
     "ek": 1, "do": 2, "teen": 3, "chaar": 4, "paanch": 5,
-    "panch": 5, "saat": 7, "das": 10,
+    "panch": 5, "panchh": 5, "panche": 5, "saat": 7, "das": 10,
     "डेढ़": 1.5, "डेढ़": 1.5, "dedh": 1.5, "ढाई": 2.5, "dhai": 2.5,
 }
-_SCALES = {"सौ": 100, "sau": 100, "soo": 100, "so": 100, "हजार": 1000, "हज़ार": 1000, "hazaar": 1000, "hazar": 1000}
+_SCALES = {
+    "सौ": 100, "sau": 100, "soo": 100, "so": 100,
+    "हजार": 1000, "हज़ार": 1000, "hazaar": 1000, "hazar": 1000, "hazzaar": 1000, "hazzar": 1000, "k": 1000
+}
 _WORD = "(?:" + "|".join(sorted(map(re.escape, _NUMBERS), key=len, reverse=True)) + ")"
 _SCALE = "(?:" + "|".join(_SCALES) + ")"
 _BASE = rf"(?:\d+(?:\.\d+)?|{_WORD})"
 _NUMBER = rf"(?:(?:साढ़े|साढ़े|saadhe)\s+{_BASE}(?:\s+{_SCALE})?|{_BASE}(?:\s+{_SCALE})?|{_SCALE})"
 _CURRENCY = r"(?:रुपये|रुपए|रुपया|रूपये|रूपए|रूपे|रुपे|rupaye|rupay|rupees?|rs)"
 _UNIT = r"(?:किलोग्राम|किलो|लीटर|पैकेट|पेटी|बैग|kilograms?|kilos?|kg|litres?|liters?|ltr|packets?|peti|bags?)"
-_PAYMENT = r"(?:भुगतान|जमा|दिए|दिये|paid|payment|jama|diye)"
-_CREDIT = r"(?:उधार|बाकी|लिया|liya|udhaar|udhar|baaki|baki)"
+_PAYMENT = r"(?:भुगतान|जमा|दिए|दिये|paid|payment|jama|diye|chukta|chuka)"
+_CREDIT = r"(?:उधार|उदार|दार|दहार|बाकी|लिया|liya|udhaar|udhar|baaki|baki)"
 # Do not treat Devanagari combining marks as word boundaries (Python's \b does).
 _LEFT = r"(?<![^\s])"
 _RIGHT = r"(?=$|\s)"
@@ -52,6 +55,7 @@ def parse_simple_entry(text: str) -> List[LLMEntryExtraction]:
     """Extract a single reviewable draft; leave complex commands to the model."""
     cleaned = unicodedata.normalize("NFC", text).lower()
     cleaned = re.sub(r"\b(\d+)(?:st|nd|rd|th)\b", r"\1", cleaned)
+    cleaned = re.sub(r"(?<=\d),(?=\d)", "", cleaned)
     cleaned = re.sub(r"[,।!?]|\.(?!\d)", " ", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
     if not cleaned or re.search(r"(?:^|\s)(?:aur|और|and|te)(?:\s|$)|[;\n]", text.lower()):
@@ -91,8 +95,15 @@ def parse_simple_entry(text: str) -> List[LLMEntryExtraction]:
         customer = cleaned[:min(boundaries)].strip() if boundaries else ""
     if not customer or len(customer.split()) > 4 or re.search(r"\d", customer):
         return []
-    # Preserve the original name's capitalization for the confirmation sheet.
-    customer = text.strip()[:len(customer)]
+    customer = re.sub(r"[,।!?]+$", "", customer).strip()
+    # Preserve original customer capitalization from raw text
+    raw_clean = re.sub(r"[,।!?]+", " ", text.strip())
+    raw_customer_match = re.match(rf"^{re.escape(customer)}", raw_clean, re.IGNORECASE)
+    if raw_customer_match:
+        customer = raw_customer_match.group(0).strip()
+    else:
+        customer = text.strip()[:len(customer)]
+    customer = re.sub(r"[,।!?]+$", "", customer).strip()
 
     item = None
     if quantity:
