@@ -116,14 +116,18 @@ def seed_if_empty():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        if db.query(Customer).first() is not None:
-            print("Database already contains customers; keeping existing data.")
-            return False
-        seed()
-        print("Empty database detected; demo data seeded.")
-        return True
+        is_empty = db.query(Customer).first() is None
     finally:
         db.close()
+
+    if not is_empty:
+        print("Database already contains customers; keeping existing data.")
+        return False
+
+    # Close the inspection session before seed() opens its write session.
+    seed()
+    print("Empty database detected; demo data seeded.")
+    return True
 
 
 if __name__ == "__main__":
